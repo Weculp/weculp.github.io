@@ -647,10 +647,97 @@
         </div>
       </div>
 
-      <!-- ─────────── 04  Risk Management ─────────── -->
+      <!-- ─────────── 04  Commodities Dashboard ─────────── -->
       <div class="catalog-item reveal">
         <div class="catalog-content">
-          <span class="catalog-num">04 — MGMTMFE 409 · Spring 2025</span>
+          <span class="catalog-num">04 — Live · Production</span>
+          <h2 class="catalog-title">Commodities Dashboard</h2>
+          <p class="catalog-desc">
+            A real&#8209;time commodity futures analytics dashboard featuring term structure curves, realized and implied volatility analysis, seasonality patterns, correlation matrices, spread analysis, and position calculators. The FastAPI backend fetches live OHLCV and options data for crude oil, gold, natural gas, copper, silver, and wheat. The React frontend renders interactive Plotly and Recharts visualizations with dark/light theme support and Gemini API integration for enhanced analytics.
+          </p>
+          <div class="catalog-tech">
+            <span class="tech-tag">React</span>
+            <span class="tech-tag">FastAPI</span>
+            <span class="tech-tag">Plotly.js</span>
+            <span class="tech-tag">Recharts</span>
+            <span class="tech-tag">yfinance</span>
+            <span class="tech-tag">Fly.io</span>
+          </div>
+          <div class="catalog-links">
+            <a class="cat-link" href="/commodities-dashboard/" target="_blank" rel="noopener">
+              Live Demo
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </a>
+            <a class="cat-link" href="https://github.com/Weculp/commodities-dashboard" target="_blank" rel="noopener">
+              Source Code
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="catalog-visual">
+          <div class="dot-pattern"></div>
+          <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="cmdtyFillP" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- Commodity tickers -->
+            <g class="svg-anim-fade" style="--fade-delay:0.2s" font-family="JetBrains Mono,monospace" font-size="8" letter-spacing="0.1em" fill="var(--ink-subtle)">
+              <text x="40" y="28">CL</text>
+              <text x="112" y="28">GC</text>
+              <text x="184" y="28">NG</text>
+              <text x="256" y="28">HG</text>
+              <text x="328" y="28">SI</text>
+              <text x="400" y="28">ZW</text>
+            </g>
+            <!-- Candlestick bars -->
+            <g class="svg-anim-fade" style="--fade-delay:0.4s">
+              <line x1="52" y1="50" x2="52" y2="110" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+              <rect x="46" y="60" width="12" height="30" fill="var(--accent)" opacity="0.5" rx="1"/>
+              <line x1="124" y1="45" x2="124" y2="100" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+              <rect x="118" y="52" width="12" height="28" fill="var(--accent)" opacity="0.65" rx="1"/>
+              <line x1="196" y1="55" x2="196" y2="115" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+              <rect x="190" y="70" width="12" height="25" fill="var(--accent)" opacity="0.4" rx="1"/>
+              <line x1="268" y1="48" x2="268" y2="105" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+              <rect x="262" y="58" width="12" height="30" fill="var(--accent)" opacity="0.55" rx="1"/>
+              <line x1="340" y1="52" x2="340" y2="108" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+              <rect x="334" y="65" width="12" height="22" fill="var(--accent)" opacity="0.45" rx="1"/>
+              <line x1="412" y1="58" x2="412" y2="112" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+              <rect x="406" y="72" width="12" height="20" fill="var(--accent)" opacity="0.35" rx="1"/>
+            </g>
+            <line x1="40" y1="130" x2="440" y2="130" stroke="var(--rule)" stroke-width="0.5"/>
+            <!-- Term structure -->
+            <text class="svg-anim-fade" style="--fade-delay:0.6s" x="40" y="148" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--ink-subtle)" letter-spacing="0.12em">TERM STRUCTURE</text>
+            <g stroke="var(--rule)" stroke-width="0.3" opacity="0.4">
+              <line x1="40" y1="170" x2="440" y2="170"/>
+              <line x1="40" y1="200" x2="440" y2="200"/>
+              <line x1="40" y1="230" x2="440" y2="230"/>
+            </g>
+            <path class="svg-anim-draw" style="--path-len:450;--draw-dur:2s;--draw-delay:0.5s"
+              d="M50,235 Q100,228 150,218 Q200,208 250,200 Q300,195 350,192 Q400,190 440,189"
+              stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path class="svg-anim-fade" style="--fade-delay:1.5s"
+              d="M50,235 Q100,228 150,218 Q200,208 250,200 Q300,195 350,192 Q400,190 440,189 L440,250 L50,250 Z"
+              fill="url(#cmdtyFillP)"/>
+            <circle class="svg-pulse-dot" cx="50" cy="235" r="3.5" fill="var(--accent)"/>
+            <g class="svg-anim-fade" style="--fade-delay:1.8s">
+              <text x="60" y="250" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--accent)">SPOT</text>
+              <text x="400" y="182" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--ink-subtle)">F12</text>
+            </g>
+            <g class="svg-anim-fade" style="--fade-delay:2s">
+              <rect x="200" y="158" width="80" height="18" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="0.5" rx="2"/>
+              <text x="240" y="170" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--accent)" letter-spacing="0.08em">CONTANGO</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- ─────────── 05  Risk Management ─────────── -->
+      <div class="catalog-item reveal">
+        <div class="catalog-content">
+          <span class="catalog-num">05 — MGMTMFE 409 · Spring 2025</span>
           <h2 class="catalog-title">Financial Risk Management</h2>
           <p class="catalog-desc">
             Eight projects covering the full risk management pipeline: Component VaR/CVaR decomposition, VaR backtesting through the 2008 crisis (Kupiec test), GARCH vs EWMA vs historical simulation comparison, Stulz multi&#8209;asset exotic&#8209;option Greeks, Basel III compliance deep&#8209;dives on Bank of America, CDS hazard&#8209;rate bootstrapping with piecewise constant lambdas, the LTCM collapse case study, and the Merton structural credit model (distance&#8209;to&#8209;default, recovery rate estimation).
@@ -721,10 +808,10 @@
         </div>
       </div>
 
-      <!-- ─────────── 05  QAM ─────────── -->
+      <!-- ─────────── 06  QAM ─────────── -->
       <div class="catalog-item reveal">
         <div class="catalog-content">
-          <span class="catalog-num">05 — MGMTMFE 431 · Spring 2025</span>
+          <span class="catalog-num">06 — MGMTMFE 431 · Spring 2025</span>
           <h2 class="catalog-title">Quantitative Asset Management</h2>
           <p class="catalog-desc">
             Five&#8209;project factor replication suite built on WRDS CRSP/Compustat data. Constructed market excess return (MKT&#8209;RF), risk&#8209;free rate, RMW (robust&#8209;minus&#8209;weak), CMA (conservative&#8209;minus&#8209;aggressive), size (SMB), value (HML), and momentum (WML) factors. Achieved &gt;0.99 correlation with published Kenneth French benchmarks. Final project: a <strong>Betting Against Correlation (BAC)</strong> factor isolating the correlation component of beta, demonstrating orthogonal alpha over 2010&#8209;2024.
@@ -834,10 +921,10 @@
         </div>
       </div>
 
-      <!-- ─────────── 06  Advanced Computational Methods ─────────── -->
+      <!-- ─────────── 07  Advanced Computational Methods ─────────── -->
       <div class="catalog-item reveal">
         <div class="catalog-content">
-          <span class="catalog-num">06 — MGMTMFE 432 · Spring 2025</span>
+          <span class="catalog-num">07 — MGMTMFE 432 · Spring 2025</span>
           <h2 class="catalog-title">Advanced Computational Methods</h2>
           <p class="catalog-desc">
             Three projects covering the full spectrum of numerical option pricing: binomial and trinomial trees for American options with discrete dividends, variance&#8209;reduced Monte Carlo (control variates, antithetic variables) for Asian and lookback options, implicit/explicit/Crank&#8209;Nicolson PDE solvers for American puts, Vasicek and CIR term&#8209;structure models, and quadrature&#8209;based pricing. Also includes exotic barrier options with rebates and Richardson extrapolation.
@@ -904,10 +991,10 @@
         </div>
       </div>
 
-      <!-- ─────────── 07  Exotic Options / Stochastic Vol ─────────── -->
+      <!-- ─────────── 08  Exotic Options / Stochastic Vol ─────────── -->
       <div class="catalog-item reveal">
         <div class="catalog-content">
-          <span class="catalog-num">07 — MGMTMFE 432 · Project 3</span>
+          <span class="catalog-num">08 — MGMTMFE 432 · Project 3</span>
           <h2 class="catalog-title">Exotic Derivatives &amp; Fixed Income Valuation</h2>
           <p class="catalog-desc">
             Capstone project implementing jump&#8209;diffusion default option pricing (Poisson jumps), down&#8209;and&#8209;out puts under Heston&#8209;type stochastic volatility, CIR and G2++ term&#8209;structure models for bond and swaption pricing, and mortgage&#8209;backed security valuation with the Numerix prepayment model (IO/PO tranches, OAS computation). All solvers built from scratch using full&#8209;truncation Monte Carlo and implicit finite&#8209;difference methods.

@@ -1002,21 +1002,26 @@
           </div>
         </div>
 
-        <!-- Featured 3: IAQF Competition -->
+        <!-- Featured 3: Commodities Dashboard -->
         <div class="featured-tile reveal delay-3">
           <div class="featured-content">
-            <span class="featured-tag">Competition · Top 4 / 30</span>
-            <h2 class="featured-title">IAQF 2025</h2>
+            <span class="featured-tag">Live · Production</span>
+            <h2 class="featured-title">Commodities Dashboard</h2>
             <p class="featured-desc">
-              Modelled multi&#8209;asset volatility dynamics with GARCH&#8209;DCC and detected bubble regimes via LPPLS critical&#8209;time estimation. Our UCLA MFE team placed Top 4 of 30 teams internationally.
+              Real&#8209;time commodity futures analytics with term structure curves, volatility analysis, seasonality, correlation matrices, and spread analysis across crude oil, gold, natural gas, and more.
             </p>
             <div class="featured-specs">
-              <div class="spec-item"><span class="spec-label">Methods</span><span class="spec-val">GARCH&#8209;DCC · LPPLS</span></div>
-              <div class="spec-item"><span class="spec-label">Result</span><span class="spec-val">Top 4 / 30 teams</span></div>
+              <div class="spec-item"><span class="spec-label">Stack</span><span class="spec-val">React · FastAPI · Plotly</span></div>
+              <div class="spec-item"><span class="spec-label">Data</span><span class="spec-val">yfinance · Live Feed</span></div>
+              <div class="spec-item"><span class="spec-label">Deploy</span><span class="spec-val">Fly.io · GitHub Pages</span></div>
             </div>
             <div class="featured-links">
-              <a class="link-chip" href="assets/IAQF_2025_Geeks_for_Greeks_UCLA.pdf" target="_blank" rel="noopener">
-                Read Paper
+              <a class="link-chip" href="/commodities-dashboard/" target="_blank" rel="noopener">
+                Live Demo
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+              </a>
+              <a class="link-chip" href="https://github.com/Weculp/commodities-dashboard" target="_blank" rel="noopener">
+                Source
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
               </a>
             </div>
@@ -1186,71 +1191,82 @@
           </div>
         </a>
 
-        <!-- Card 03: Risk Management Suite -->
-        <a class="project-card reveal delay-3" href="https://github.com/WeCulp/Risk-Management" target="_blank" rel="noopener">
+        <!-- Card 03: Commodities Dashboard -->
+        <a class="project-card reveal delay-3" href="/commodities-dashboard/" target="_blank" rel="noopener">
           <div class="project-render">
             <div class="dot-pattern"></div>
             <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
               <defs>
-                <linearGradient id="rmFan" x1="0%" y1="0%" x2="0%" y2="100%">
+                <linearGradient id="cmdtyFill" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.2"/>
                   <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
                 </linearGradient>
               </defs>
-              <!-- Grid -->
-              <g stroke="var(--rule)" stroke-width="0.5">
-                <line x1="40" y1="60" x2="440" y2="60"/>
-                <line x1="40" y1="120" x2="440" y2="120"/>
-                <line x1="40" y1="180" x2="440" y2="180"/>
-                <line x1="40" y1="240" x2="440" y2="240"/>
+              <!-- Commodity tickers -->
+              <g class="svg-anim-fade" style="--fade-delay:0.2s" font-family="JetBrains Mono,monospace" font-size="8" letter-spacing="0.1em" fill="var(--ink-subtle)">
+                <text x="40" y="28">CL</text>
+                <text x="112" y="28">GC</text>
+                <text x="184" y="28">NG</text>
+                <text x="256" y="28">HG</text>
+                <text x="328" y="28">SI</text>
+                <text x="400" y="28">ZW</text>
               </g>
-              <!-- VaR line -->
-              <g class="svg-anim-fade" style="--fade-delay:1.6s">
-                <line x1="40" y1="198" x2="440" y2="198" stroke="var(--accent)" stroke-width="1" stroke-dasharray="6 3" opacity="0.6"/>
-                <text x="442" y="195" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--accent)">VaR 95%</text>
+              <!-- Candlestick-style bars per commodity -->
+              <g class="svg-anim-fade" style="--fade-delay:0.4s">
+                <!-- CL -->
+                <line x1="52" y1="50" x2="52" y2="110" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+                <rect x="46" y="60" width="12" height="30" fill="var(--accent)" opacity="0.5" rx="1"/>
+                <!-- GC -->
+                <line x1="124" y1="45" x2="124" y2="100" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+                <rect x="118" y="52" width="12" height="28" fill="var(--accent)" opacity="0.65" rx="1"/>
+                <!-- NG -->
+                <line x1="196" y1="55" x2="196" y2="115" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+                <rect x="190" y="70" width="12" height="25" fill="var(--accent)" opacity="0.4" rx="1"/>
+                <!-- HG -->
+                <line x1="268" y1="48" x2="268" y2="105" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+                <rect x="262" y="58" width="12" height="30" fill="var(--accent)" opacity="0.55" rx="1"/>
+                <!-- SI -->
+                <line x1="340" y1="52" x2="340" y2="108" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+                <rect x="334" y="65" width="12" height="22" fill="var(--accent)" opacity="0.45" rx="1"/>
+                <!-- ZW -->
+                <line x1="412" y1="58" x2="412" y2="112" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+                <rect x="406" y="72" width="12" height="20" fill="var(--accent)" opacity="0.35" rx="1"/>
               </g>
-              <!-- CVaR shade -->
-              <rect class="svg-anim-fade" style="--fade-delay:1.8s" x="40" y="198" width="400" height="48" fill="var(--accent)" opacity="0.04" rx="1"/>
-              <!-- Fan envelope -->
-              <path class="svg-anim-fade" style="--fade-delay:0.5s"
-                d="M40,150 Q120,40 240,30 Q360,40 440,60 L440,240 Q360,260 240,270 Q120,260 40,150 Z"
-                fill="url(#rmFan)" opacity="0.65"/>
-              <!-- Monte Carlo paths -->
-              <g fill="none" opacity="0.4">
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.1s" d="M40,150 Q120,140 200,120 T440,80" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.2s" d="M40,150 Q130,155 210,145 T440,110" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.3s" d="M40,150 Q115,135 195,115 T440,70" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.4s" d="M40,150 Q125,160 205,150 T440,120" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.5s" d="M40,150 Q120,130 200,105 T440,55" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.6s" d="M40,150 Q130,165 215,160 T440,140" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.7s" d="M40,150 Q120,145 205,128 T440,92" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.8s" d="M40,150 Q125,155 210,152 T440,128" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.9s" d="M40,150 Q115,140 200,118 T440,72" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:1.0s" d="M40,150 Q130,150 215,140 T440,100" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:1.1s" d="M40,150 Q120,168 205,165 T440,155" stroke="var(--accent)" stroke-width="0.7"/>
-                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:1.2s" d="M40,150 Q128,172 212,168 T440,165" stroke="var(--accent)" stroke-width="0.7"/>
+              <!-- Divider -->
+              <line x1="40" y1="130" x2="440" y2="130" stroke="var(--rule)" stroke-width="0.5"/>
+              <!-- Futures term structure curve -->
+              <text class="svg-anim-fade" style="--fade-delay:0.6s" x="40" y="148" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--ink-subtle)" letter-spacing="0.12em">TERM STRUCTURE</text>
+              <g stroke="var(--rule)" stroke-width="0.3" opacity="0.4">
+                <line x1="40" y1="170" x2="440" y2="170"/>
+                <line x1="40" y1="200" x2="440" y2="200"/>
+                <line x1="40" y1="230" x2="440" y2="230"/>
               </g>
-              <!-- Mean path -->
-              <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2s;--draw-delay:0.3s"
-                d="M40,150 Q130,148 215,135 T440,95" stroke="var(--accent)" stroke-width="2.5" fill="none"/>
-              <!-- Origin -->
-              <circle class="svg-pulse-dot" cx="40" cy="150" r="4" fill="var(--accent)"/>
-              <!-- Distribution at endpoint -->
-              <g class="svg-anim-fade" style="--fade-delay:2s" transform="translate(440,0)">
-                <path d="M0,45 Q15,60 15,95 Q15,130 0,150 Q-15,170 -15,200 Q-15,230 0,245"
-                  stroke="var(--accent)" stroke-width="0.8" fill="var(--accent)" fill-opacity="0.05" opacity="0.6"/>
+              <!-- Contango curve -->
+              <path class="svg-anim-draw" style="--path-len:450;--draw-dur:2s;--draw-delay:0.5s"
+                d="M50,235 Q100,228 150,218 Q200,208 250,200 Q300,195 350,192 Q400,190 440,189"
+                stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- Area under curve -->
+              <path class="svg-anim-fade" style="--fade-delay:1.5s"
+                d="M50,235 Q100,228 150,218 Q200,208 250,200 Q300,195 350,192 Q400,190 440,189 L440,250 L50,250 Z"
+                fill="url(#cmdtyFill)"/>
+              <!-- Spot price marker -->
+              <circle class="svg-pulse-dot" cx="50" cy="235" r="3.5" fill="var(--accent)"/>
+              <g class="svg-anim-fade" style="--fade-delay:1.8s">
+                <text x="60" y="250" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--accent)">SPOT</text>
+                <text x="400" y="182" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--ink-subtle)">F12</text>
               </g>
-              <!-- Labels -->
-              <text x="48" y="146" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--ink-subtle)">S0</text>
-              <text x="400" y="30" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--ink-subtle)">P95</text>
-              <text x="400" y="262" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--ink-subtle)">P5</text>
+              <!-- Contango label -->
+              <g class="svg-anim-fade" style="--fade-delay:2s">
+                <rect x="200" y="158" width="80" height="18" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="0.5" rx="2"/>
+                <text x="240" y="170" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--accent)" letter-spacing="0.08em">CONTANGO</text>
+              </g>
             </svg>
           </div>
           <div class="project-body">
-            <span class="project-num">03 · MGMTMFE 409</span>
-            <h3 class="project-title">Financial Risk Management Suite</h3>
-            <p class="project-desc">Eight projects spanning Component VaR, GARCH backtesting, Stulz multi&#8209;asset options, CDS hazard bootstrapping, and the Merton structural credit model.</p>
-            <span class="project-arrow">View Repo &#8599;</span>
+            <span class="project-num">03 · Live Demo</span>
+            <h3 class="project-title">Commodities Dashboard</h3>
+            <p class="project-desc">Real&#8209;time commodity futures analytics with term structure, volatility models, seasonality, correlation matrices, and interactive charting.</p>
+            <span class="project-arrow">Launch App &#8599;</span>
           </div>
         </a>
 
