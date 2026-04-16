@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vikalp Thukral — Quantitative Researcher</title>
+<meta name="description" content="Quantitative researcher at UCLA Anderson MFE. Derivatives, stochastic modeling, volatility surfaces, and real-time market data." />
+<meta name="author" content="Vikalp Thukral" />
+<meta property="og:title" content="Vikalp Thukral — Quantitative Researcher" />
+<meta property="og:description" content="UCLA Anderson MFE. Derivatives, stochastic modeling, and real-time market data." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://www.vikalpthukral.com" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<style>
+  :root {
+    --bg: #fafaf7;
+    --bg-raised: #ffffff;
+    --ink: #0a0b0d;
+    --ink-muted: #565a63;
+    --ink-subtle: #9ca0a8;
+    --rule: rgba(10, 11, 13, 0.09);
+    --rule-strong: rgba(10, 11, 13, 0.18);
+    --accent: #0a7f8f;
+    --accent-hover: #066675;
+    --accent-soft: rgba(10, 127, 143, 0.08);
+    --font-display: "Inter Tight", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Consolas, monospace;
+    --max-w: 1200px;
+    --gutter: clamp(1.25rem, 4vw, 4rem);
+  }
+
+  [data-theme="dark"] {
+    --bg: #09090b;
+    --bg-raised: #111114;
+    --ink: #ececf0;
+    --ink-muted: #8b8f98;
+    --ink-subtle: #4b4f57;
+    --rule: rgba(236, 236, 240, 0.08);
+    --rule-strong: rgba(236, 236, 240, 0.18);
+    --accent: #4fd1c5;
+    --accent-hover: #6de2d7;
+    --accent-soft: rgba(79, 209, 197, 0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 400;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  a { color: inherit; text-decoration: none; }
+
+  img, svg { display: block; max-width: 100%; }
+
+  /* ─── HEADER ─── */
+  header.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+
+  header.site-header.scrolled { border-bottom-color: var(--rule); }
+
+  .header-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 1.1rem var(--gutter);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .brand {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .brand-mark {
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid var(--ink);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0;
+    transition: border-color 0.3s;
+  }
+
+  nav.primary {
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+  }
+
+  nav.primary a {
+    color: var(--ink-muted);
+    position: relative;
+    padding: 0.2rem 0;
+    transition: color 0.25s;
+  }
+  nav.primary a:hover { color: var(--ink); }
+  nav.primary a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  nav.primary a:hover::after { width: 100%; }
+
+  .theme-toggle {
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    color: var(--ink);
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    border-radius: 0;
+    transition: all 0.25s;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .theme-toggle svg { width: 16px; height: 16px; }
+  .theme-toggle .moon { display: none; }
+  [data-theme="dark"] .theme-toggle .sun { display: none; }
+  [data-theme="dark"] .theme-toggle .moon { display: block; }
+
+  .nav-mobile { display: none; }
+
+  @media (max-width: 720px) {
+    nav.primary { display: none; }
+  }
+
+  /* ─── LAYOUT ─── */
+  main { padding-top: 70px; }
+
+  .container {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+  }
+
+  section {
+    padding: clamp(5rem, 11vh, 9rem) 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  section:first-of-type { border-top: none; }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+  .section-label::before {
+    content: "";
+    width: 32px;
+    height: 1px;
+    background: var(--ink-subtle);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  /* ─── HERO ─── */
+  #hero {
+    padding: clamp(7rem, 18vh, 14rem) 0 clamp(5rem, 10vh, 8rem);
+    border-top: none;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .hero-headline {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.75rem, 8.2vw, 7rem);
+    line-height: 0.93;
+    letter-spacing: -0.035em;
+    margin-top: 0.5rem;
+    will-change: transform;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-headline .light {
+    font-weight: 500;
+    color: var(--ink-muted);
+    display: block;
+    font-size: clamp(1.35rem, 3.2vw, 2.35rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-top: 1.75rem;
+    max-width: 28ch;
+  }
+
+  .hero-blurb {
+    max-width: 58ch;
+    font-size: clamp(1rem, 1.25vw, 1.1rem);
+    line-height: 1.7;
+    color: var(--ink-muted);
+    margin-top: 2.5rem;
+    will-change: transform;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-blurb em {
+    font-style: normal;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 3rem;
+    will-change: transform;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.95rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--bg);
+    transition: all 0.25s ease;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  [data-theme="dark"] .btn:hover { color: var(--bg); }
+
+  .btn.secondary {
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn.secondary:hover { background: transparent; color: var(--accent); }
+
+  .btn svg { width: 14px; height: 14px; }
+
+  .hero-meta {
+    margin-top: 4.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem 3.5rem;
+    will-change: transform;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .hero-meta-item .label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+  .hero-meta-item .val {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* ─── ABOUT ─── */
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3rem;
+  }
+  @media (min-width: 880px) {
+    .about-grid { grid-template-columns: 0.4fr 0.6fr; gap: 5rem; }
+  }
+
+  .about-heading {
+    font-size: clamp(2rem, 4.2vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    max-width: 14ch;
+  }
+
+  .about-body p {
+    font-size: clamp(1rem, 1.2vw, 1.08rem);
+    line-height: 1.75;
+    color: var(--ink-muted);
+    margin-bottom: 1.4rem;
+  }
+  .about-body p:last-child { margin-bottom: 0; }
+  .about-body strong { color: var(--ink); font-weight: 500; }
+
+  /* ─── FEATURED ─── */
+  .featured-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  @media (min-width: 920px) {
+    .featured-grid { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  }
+
+  .featured-tile {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    align-items: stretch;
+    border: 1px solid var(--rule-strong);
+    background: var(--bg-raised);
+    padding: clamp(1.75rem, 3.5vw, 3rem);
+    transition: border-color 0.3s, transform 0.4s;
+  }
+  .featured-tile:hover { border-color: var(--accent); }
+
+  .featured-tile.full-width {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 920px) {
+    .featured-tile.full-width { grid-template-columns: 0.95fr 1.05fr; gap: 3.5rem; }
+  }
+
+  .featured-content { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .featured-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .featured-title {
+    font-size: clamp(1.75rem, 3.2vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  .featured-desc {
+    font-size: 1rem;
+    color: var(--ink-muted);
+    line-height: 1.7;
+    max-width: 46ch;
+  }
+
+  .featured-specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1.25rem 1.75rem;
+    margin-top: 0.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+  .spec-item .spec-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .spec-item .spec-val {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .featured-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .link-chip {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--rule-strong);
+    color: var(--ink);
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .link-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .link-chip svg { width: 12px; height: 12px; }
+
+  .featured-preview {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    min-height: 280px;
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+  #heroSurface { width: 100%; height: 100%; }
+
+  .preview-overlay {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ─── PROJECTS GRID (home, 4 featured — 2x2) ─── */
+  .projects-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .projects-head h2 {
+    font-size: clamp(2rem, 4.2vw, 3.2rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    max-width: 20ch;
+  }
+  .projects-head .all-link {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 3px;
+    transition: color 0.25s, border-color 0.25s;
+  }
+  .projects-head .all-link:hover { color: var(--accent); border-color: var(--accent); }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  @media (min-width: 780px) {
+    .projects-grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+  }
+
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-raised);
+    border: 1px solid var(--rule-strong);
+    transition: border-color 0.3s, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .project-card:hover { border-color: var(--accent); }
+
+  .project-render {
+    aspect-ratio: 16 / 10;
+    background: var(--bg);
+    border-bottom: 1px solid var(--rule);
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .project-render svg { width: 100%; height: 100%; display: block; }
+
+  .project-body {
+    padding: 1.5rem 1.5rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .project-num {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .project-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .project-desc {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--ink-muted);
+  }
+  .project-arrow {
+    margin-top: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.25s, gap 0.3s;
+  }
+  .project-card:hover .project-arrow { color: var(--accent); gap: 0.7rem; }
+
+  /* ─── EXPERIENCE ─── */
+  .xp-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  @media (min-width: 880px) {
+    .xp-grid { grid-template-columns: 0.4fr 0.6fr; gap: 5rem; }
+  }
+
+  .xp-heading {
+    font-size: clamp(2rem, 4.2vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    max-width: 14ch;
+  }
+
+  .xp-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .xp-item {
+    padding: 2rem 0;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+  .xp-item:first-child { border-top: none; padding-top: 0; }
+  .xp-item:last-child { padding-bottom: 0; }
+
+  .xp-dates {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+  .xp-role {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-top: 0.3rem;
+  }
+  .xp-company {
+    font-size: 0.95rem;
+    color: var(--ink-muted);
+    margin-top: 0.1rem;
+  }
+  .xp-desc {
+    font-size: 0.92rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin-top: 0.85rem;
+    max-width: 60ch;
+  }
+
+  /* ─── CONTACT ─── */
+  .contact-body {
+    max-width: 42ch;
+  }
+  .contact-body h2 {
+    font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    margin-bottom: 1.5rem;
+  }
+  .contact-body p {
+    font-size: 1.1rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+    margin-bottom: 2.5rem;
+  }
+
+  .contact-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    max-width: 540px;
+    margin-top: 3rem;
+  }
+  @media (min-width: 620px) { .contact-links { grid-template-columns: 1fr 1fr; } }
+
+  .contact-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.5rem 1.25rem;
+    border: 1px solid var(--rule-strong);
+    transition: all 0.25s;
+  }
+  .contact-link:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .contact-link .label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+  }
+  .contact-link .val {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--ink);
+    word-break: break-all;
+  }
+
+  /* ─── FOOTER ─── */
+  footer.site-footer {
+    border-top: 1px solid var(--rule);
+    padding: 2.5rem 0 3rem;
+  }
+  .footer-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-subtle);
+    text-transform: uppercase;
+  }
+  .footer-inner a { color: var(--ink-subtle); transition: color 0.25s; }
+  .footer-inner a:hover { color: var(--accent); }
+
+  /* ─── REVEAL ANIMATIONS ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: 0.08s; }
+  .reveal.delay-2 { transition-delay: 0.16s; }
+  .reveal.delay-3 { transition-delay: 0.24s; }
+  .reveal.delay-4 { transition-delay: 0.32s; }
+
+  /* ─── ANIMATED SVG GRAPHICS ─── */
+  @keyframes svgDraw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes svgFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes barGrow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  @keyframes barGrowY {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  @keyframes dashFlow {
+    to { stroke-dashoffset: -24; }
+  }
+
+  @keyframes gaugeArc {
+    from { stroke-dashoffset: 190; }
+    to { stroke-dashoffset: 55; }
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.5); opacity: 1; }
+  }
+
+  .svg-anim-draw {
+    stroke-dasharray: var(--path-len, 600);
+    stroke-dashoffset: var(--path-len, 600);
+  }
+
+  .project-card.in .svg-anim-draw,
+  .featured-tile.in .svg-anim-draw,
+  .catalog-item.in .svg-anim-draw {
+    animation: svgDraw var(--draw-dur, 2s) cubic-bezier(0.16, 1, 0.3, 1) var(--draw-delay, 0s) forwards;
+  }
+
+  .svg-anim-fade {
+    opacity: 0;
+  }
+
+  .project-card.in .svg-anim-fade,
+  .featured-tile.in .svg-anim-fade,
+  .catalog-item.in .svg-anim-fade {
+    animation: svgFadeIn 1s ease var(--fade-delay, 0.5s) forwards;
+  }
+
+  .svg-anim-bar {
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+
+  .project-card.in .svg-anim-bar,
+  .catalog-item.in .svg-anim-bar {
+    animation: barGrow 0.8s cubic-bezier(0.16, 1, 0.3, 1) var(--bar-delay, 0.5s) forwards;
+  }
+
+  .svg-anim-gauge {
+    stroke-dasharray: 190;
+    stroke-dashoffset: 190;
+  }
+
+  .project-card.in .svg-anim-gauge,
+  .catalog-item.in .svg-anim-gauge {
+    animation: gaugeArc 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+  }
+
+  .svg-dash-flow {
+    animation: dashFlow 2s linear infinite;
+  }
+
+  .svg-pulse-dot {
+    animation: pulseDot 2.5s ease-in-out infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+
+  /* ─── DOT GRID PATTERN ─── */
+  .dot-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, var(--ink-subtle) 0.5px, transparent 0.5px);
+    background-size: 18px 18px;
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .project-render svg {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── ENHANCED HOVER ─── */
+  .project-card:hover .project-render svg {
+    transform: scale(1.02);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    .svg-anim-draw { stroke-dashoffset: 0; }
+    .svg-anim-fade { opacity: 1; }
+    .svg-anim-bar { transform: scaleX(1); }
+    .svg-anim-gauge { stroke-dashoffset: 55; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark">VT</span>
+      <span>Vikalp Thukral</span>
+    </a>
+    <nav class="primary">
+      <a href="#about">About</a>
+      <a href="#featured">Work</a>
+      <a href="projects.html">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── 00 HERO ── -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <div class="section-label reveal">00 — Index</div>
+          <h1 class="hero-headline reveal delay-1">
+            Vikalp Thukral.
+            <span class="light">Quantitative researcher working at the intersection of derivatives, stochastic modeling, and real&#8209;time market data.</span>
+          </h1>
+          <p class="hero-blurb reveal delay-2">
+            I'm a <em>Master of Financial Engineering</em> candidate at <em>UCLA Anderson</em>, currently researching neural&#8209;network&#8209;accelerated Monte Carlo for path&#8209;dependent options and building interactive tools that make complex quantitative models actually usable — including a live, browser&#8209;rendered implied volatility surface for any US&#8209;listed equity.
+          </p>
+          <div class="hero-cta reveal delay-3">
+            <a class="btn" href="assets/Vikalp_Thukral_Resume.pdf" download>
+              Download Resume
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14M6 13l6 6 6-6M5 21h14"/></svg>
+            </a>
+            <a class="btn secondary" href="projects.html">
+              View Projects
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+
+          <div class="hero-meta reveal delay-4">
+            <div class="hero-meta-item">
+              <span class="label">Program</span>
+              <span class="val">UCLA Anderson MFE '25</span>
+            </div>
+            <div class="hero-meta-item">
+              <span class="label">Location</span>
+              <span class="val">Los Angeles, CA</span>
+            </div>
+            <div class="hero-meta-item">
+              <span class="label">Honors</span>
+              <span class="val">IAQF 2025 · Top 4 of 30</span>
+            </div>
+            <div class="hero-meta-item">
+              <span class="label">GRE Quant</span>
+              <span class="val">167 / 170</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 01 ABOUT ── -->
+  <section id="about">
+    <div class="container">
+      <div class="section-label reveal">01 — About</div>
+      <div class="about-grid">
+        <h2 class="about-heading reveal delay-1">Builder first,<br>researcher always.</h2>
+        <div class="about-body reveal delay-2">
+          <p>
+            I came to quantitative finance through an unusual door — six years of large&#8209;scale data and product engineering at <strong>American Express</strong>, where I owned the Enterprise Data Warehouse and rebuilt legacy PySpark pipelines that cut overnight runtimes from 24 hours to under four. That foundation in systems and scale shaped how I think about models: they only matter if they're fast, reproducible, and usable by someone other than the author.
+          </p>
+          <p>
+            At <strong>UCLA Anderson MFE</strong> I've focused on the rigorous side of that equation — stochastic calculus, derivatives pricing, computational methods, and econometrics — and I'm currently a <strong>quantitative researcher</strong> working on neural&#8209;network&#8209;weighted Monte Carlo for path&#8209;dependent options and backtesting alpha signals via <strong>WorldQuant BRAIN</strong>. In 2025 my team placed <strong>Top 4 of 30</strong> in the <strong>IAQF International Student Competition</strong>, modelling bubble dynamics with GARCH&#8209;DCC and LPPLS.
+          </p>
+          <p>
+            Outside of coursework I ship things: an in&#8209;house options pricing library (binomial, trinomial, Crank&#8209;Nicolson PDE solvers, variance&#8209;reduced Monte Carlo), a Fama&#8209;French five&#8209;factor replication suite, a cash&#8209;flow waterfall engine for securitized loans, and a live 3D volatility surface you can visit below. I care about the craft of making quantitative research legible.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 02 FEATURED ── -->
+  <section id="featured">
+    <div class="container">
+      <div class="section-label reveal">02 — Featured Work</div>
+      <div class="featured-grid">
+
+        <!-- Featured 1: Volatility Surface (full-width with Plotly) -->
+        <div class="featured-tile full-width reveal delay-1">
+          <div class="featured-content">
+            <span class="featured-tag">Live · Production</span>
+            <h2 class="featured-title">Volatility Surface</h2>
+            <p class="featured-desc">
+              An interactive 3D implied&#8209;volatility surface visualizer for any US&#8209;listed equity. Pulls live options chains from Yahoo Finance through a custom FastAPI backend, cleans the chain, and renders a smoothed Plotly mesh with four Z&#8209;axis metrics, camera presets, and side&#8209;by&#8209;side term&#8209;structure and skew&#8209;slice mini&#8209;charts.
+            </p>
+            <div class="featured-specs">
+              <div class="spec-item"><span class="spec-label">Stack</span><span class="spec-val">FastAPI · Plotly · Docker</span></div>
+              <div class="spec-item"><span class="spec-label">Data</span><span class="spec-val">yfinance + curl_cffi</span></div>
+              <div class="spec-item"><span class="spec-label">Deploy</span><span class="spec-val">Fly.io · GitHub Pages</span></div>
+              <div class="spec-item"><span class="spec-label">Cache</span><span class="spec-val">10&#8209;min in&#8209;memory</span></div>
+            </div>
+            <div class="featured-links">
+              <a class="link-chip" href="/volatility-surface/" target="_blank" rel="noopener">
+                Live Demo
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+              </a>
+              <a class="link-chip" href="https://github.com/WeCulp/volatility-surface" target="_blank" rel="noopener">
+                Source
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+              </a>
+            </div>
+          </div>
+          <div class="featured-preview">
+            <div class="preview-overlay">
+              <span>SPY · IV Surface</span>
+              <span>t+0</span>
+            </div>
+            <div id="heroSurface"></div>
+          </div>
+        </div>
+
+        <!-- Featured 2: Risk Analytics Dashboard -->
+        <div class="featured-tile reveal delay-2">
+          <div class="featured-content">
+            <span class="featured-tag">Live · Production</span>
+            <h2 class="featured-title">Risk Dashboard</h2>
+            <p class="featured-desc">
+              Real&#8209;time portfolio risk monitoring with interactive VaR/CVaR gauges, GARCH&#8209;based volatility forecasting, factor exposure decomposition, and configurable stress&#8209;test scenarios.
+            </p>
+            <div class="featured-specs">
+              <div class="spec-item"><span class="spec-label">Stack</span><span class="spec-val">FastAPI · D3.js · React</span></div>
+              <div class="spec-item"><span class="spec-label">Data</span><span class="spec-val">WebSocket · Live Feed</span></div>
+              <div class="spec-item"><span class="spec-label">Risk</span><span class="spec-val">VaR · CVaR · GARCH</span></div>
+            </div>
+            <div class="featured-links">
+              <a class="link-chip" href="https://github.com/WeCulp/risk-dashboard" target="_blank" rel="noopener">
+                Source
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured 3: IAQF Competition -->
+        <div class="featured-tile reveal delay-3">
+          <div class="featured-content">
+            <span class="featured-tag">Competition · Top 4 / 30</span>
+            <h2 class="featured-title">IAQF 2025</h2>
+            <p class="featured-desc">
+              Modelled multi&#8209;asset volatility dynamics with GARCH&#8209;DCC and detected bubble regimes via LPPLS critical&#8209;time estimation. Our UCLA MFE team placed Top 4 of 30 teams internationally.
+            </p>
+            <div class="featured-specs">
+              <div class="spec-item"><span class="spec-label">Methods</span><span class="spec-val">GARCH&#8209;DCC · LPPLS</span></div>
+              <div class="spec-item"><span class="spec-label">Result</span><span class="spec-val">Top 4 / 30 teams</span></div>
+            </div>
+            <div class="featured-links">
+              <a class="link-chip" href="assets/IAQF_2025_Geeks_for_Greeks_UCLA.pdf" target="_blank" rel="noopener">
+                Read Paper
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 03 SELECTED PROJECTS ── -->
+  <section id="selected">
+    <div class="container">
+      <div class="section-label reveal">03 — Selected Projects</div>
+      <div class="projects-head reveal delay-1">
+        <h2>Research, pricing,<br>and market modelling.</h2>
+        <a href="projects.html" class="all-link">View all projects &#8594;</a>
+      </div>
+
+      <div class="projects-grid">
+
+        <!-- Card 01: IAQF 2025 -->
+        <a class="project-card reveal delay-1" href="https://iaqf.org/resources/Documents/2025%20Student%20Competition/Geeks%20for%20Greeks_UCLA_Report.pdf" target="_blank" rel="noopener">
+          <div class="project-render">
+            <div class="dot-pattern"></div>
+            <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <linearGradient id="iaqfGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.28"/>
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Grid -->
+              <g stroke="var(--rule)" stroke-width="0.5">
+                <line x1="40" y1="60" x2="440" y2="60"/>
+                <line x1="40" y1="120" x2="440" y2="120"/>
+                <line x1="40" y1="180" x2="440" y2="180"/>
+                <line x1="40" y1="240" x2="440" y2="240"/>
+              </g>
+              <!-- Scatter dots -->
+              <g class="svg-anim-fade" style="--fade-delay:0.2s">
+                <circle cx="60" cy="238" r="1.5" fill="var(--accent)" opacity="0.3"/>
+                <circle cx="100" cy="230" r="1.5" fill="var(--accent)" opacity="0.3"/>
+                <circle cx="140" cy="218" r="1.5" fill="var(--accent)" opacity="0.3"/>
+                <circle cx="180" cy="202" r="1.8" fill="var(--accent)" opacity="0.35"/>
+                <circle cx="220" cy="180" r="1.8" fill="var(--accent)" opacity="0.35"/>
+                <circle cx="260" cy="152" r="1.8" fill="var(--accent)" opacity="0.4"/>
+                <circle cx="300" cy="115" r="2" fill="var(--accent)" opacity="0.4"/>
+                <circle cx="330" cy="82" r="2" fill="var(--accent)" opacity="0.45"/>
+                <circle cx="355" cy="56" r="2" fill="var(--accent)" opacity="0.5"/>
+              </g>
+              <!-- Price path -->
+              <path class="svg-anim-draw" style="--path-len:600;--draw-dur:2s;--draw-delay:0.2s"
+                d="M40,240 L80,232 L120,222 L160,208 L200,188 L240,160 L280,125 L320,85 L360,52 L380,40"
+                stroke="var(--ink-muted)" stroke-width="1.2" fill="none"/>
+              <!-- Area fill -->
+              <path class="svg-anim-fade" style="--fade-delay:1s"
+                d="M40,240 L80,232 L120,222 L160,208 L200,188 L240,160 L280,125 L320,85 L360,52 L380,40 L380,260 L40,260 Z"
+                fill="url(#iaqfGrad)"/>
+              <!-- LPPLS curve -->
+              <path class="svg-anim-draw" style="--path-len:500;--draw-dur:1.8s;--draw-delay:0.8s"
+                d="M40,240 Q100,238 160,225 Q220,208 260,180 Q300,150 330,110 Q355,75 375,44"
+                stroke="var(--accent)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <!-- Bubble zone label -->
+              <g class="svg-anim-fade" style="--fade-delay:1.8s">
+                <rect x="275" y="42" width="86" height="22" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="0.5" rx="2"/>
+                <text x="318" y="57" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--accent)" letter-spacing="0.08em">BUBBLE ZONE</text>
+              </g>
+              <!-- tc dashed line -->
+              <line class="svg-dash-flow" x1="380" y1="30" x2="380" y2="260"
+                stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+              <!-- Critical point -->
+              <circle class="svg-pulse-dot" cx="380" cy="40" r="4" fill="var(--accent)"/>
+              <!-- Labels -->
+              <text x="386" y="52" font-family="JetBrains Mono,monospace" font-size="11" fill="var(--accent)">tc</text>
+              <text x="48" y="52" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--ink-subtle)">log P</text>
+              <text x="400" y="255" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--ink-subtle)">time</text>
+            </svg>
+          </div>
+          <div class="project-body">
+            <span class="project-num">01 · IAQF 2025 · Top 4 / 30</span>
+            <h3 class="project-title">Geeks for Greeks — Bubble Dynamics</h3>
+            <p class="project-desc">GARCH&#8209;DCC volatility modelling and LPPLS critical&#8209;time bubble detection across multi&#8209;asset regimes. Read the competition paper.</p>
+            <span class="project-arrow">Read Paper &#8599;</span>
+          </div>
+        </a>
+
+        <!-- Card 02: Risk Analytics Dashboard -->
+        <a class="project-card reveal delay-2" href="https://github.com/WeCulp/risk-dashboard" target="_blank" rel="noopener">
+          <div class="project-render">
+            <div class="dot-pattern"></div>
+            <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <linearGradient id="dashPnl" x1="0%" y1="100%" x2="0%" y2="0%">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0"/>
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.12"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Left: VaR Gauge — centered with breathing room -->
+              <text x="50" y="30" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--ink-subtle)" letter-spacing="0.12em">PORTFOLIO VAR</text>
+              <g transform="translate(130,120)">
+                <path d="M-65,0 A65,65 0 0,1 65,0" fill="none" stroke="var(--rule-strong)" stroke-width="8" stroke-linecap="round"/>
+                <path class="svg-anim-gauge" d="M-65,0 A65,65 0 0,1 65,0" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round"/>
+                <text y="4" text-anchor="middle" font-size="28" font-weight="800" font-family="Inter Tight,sans-serif" fill="var(--ink)">2.4%</text>
+                <text y="22" text-anchor="middle" font-size="8" font-family="JetBrains Mono,monospace" fill="var(--ink-subtle)" letter-spacing="0.1em">1-DAY 95% VAR</text>
+              </g>
+              <g class="svg-anim-fade" style="--fade-delay:1.2s" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--ink-subtle)">
+                <text x="58" y="128">0%</text>
+                <text x="188" y="128">5%</text>
+              </g>
+
+              <!-- Right: P&L sparkline — clean, airy -->
+              <text x="270" y="30" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--ink-subtle)" letter-spacing="0.12em">CUMULATIVE P&amp;L</text>
+              <text class="svg-anim-fade" style="--fade-delay:1.5s" x="448" y="30" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--accent)" font-weight="500">+12.4%</text>
+              <g stroke="var(--rule)" stroke-width="0.3" opacity="0.5">
+                <line x1="270" y1="55" x2="448" y2="55"/>
+                <line x1="270" y1="85" x2="448" y2="85"/>
+                <line x1="270" y1="115" x2="448" y2="115"/>
+              </g>
+              <path class="svg-anim-draw" style="--path-len:320;--draw-dur:2.2s;--draw-delay:0.5s"
+                d="M270,118 L286,110 L302,114 L318,96 L334,100 L350,84 L366,88 L382,72 L398,76 L414,58 L430,52 L448,44"
+                stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path class="svg-anim-fade" style="--fade-delay:1.3s"
+                d="M270,118 L286,110 L302,114 L318,96 L334,100 L350,84 L366,88 L382,72 L398,76 L414,58 L430,52 L448,44 L448,130 L270,130 Z"
+                fill="url(#dashPnl)"/>
+              <circle class="svg-anim-fade svg-pulse-dot" style="--fade-delay:1.8s" cx="448" cy="44" r="3.5" fill="var(--accent)"/>
+
+              <!-- Bottom: key metrics — horizontal row, clean spacing -->
+              <line x1="40" y1="160" x2="440" y2="160" stroke="var(--rule)" stroke-width="0.5"/>
+              <g class="svg-anim-fade" style="--fade-delay:0.8s" font-family="JetBrains Mono,monospace">
+                <g transform="translate(60,180)">
+                  <text font-size="7.5" fill="var(--ink-subtle)" letter-spacing="0.1em">CVAR 99%</text>
+                  <text y="22" font-size="18" font-weight="700" font-family="Inter Tight,sans-serif" fill="var(--accent)">3.81%</text>
+                </g>
+                <g transform="translate(170,180)">
+                  <text font-size="7.5" fill="var(--ink-subtle)" letter-spacing="0.1em">SHARPE</text>
+                  <text y="22" font-size="18" font-weight="700" font-family="Inter Tight,sans-serif" fill="var(--accent)">1.42</text>
+                </g>
+                <g transform="translate(270,180)">
+                  <text font-size="7.5" fill="var(--ink-subtle)" letter-spacing="0.1em">VOL (ANN)</text>
+                  <text y="22" font-size="18" font-weight="700" font-family="Inter Tight,sans-serif" fill="var(--accent)">14.2%</text>
+                </g>
+                <g transform="translate(380,180)">
+                  <text font-size="7.5" fill="var(--ink-subtle)" letter-spacing="0.1em">MAX DD</text>
+                  <text y="22" font-size="18" font-weight="700" font-family="Inter Tight,sans-serif" fill="var(--ink)">-8.7%</text>
+                </g>
+              </g>
+
+              <!-- Factor bars — wider spacing, fewer bars -->
+              <text x="60" y="235" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--ink-subtle)" letter-spacing="0.12em">FACTOR EXPOSURE</text>
+              <g font-family="JetBrains Mono,monospace" font-size="9" fill="var(--ink-subtle)">
+                <text x="60" y="256">MKT</text>
+                <rect class="svg-anim-bar" style="--bar-delay:0.6s" x="100" y="246" width="140" height="10" fill="var(--accent)" opacity="0.6" rx="1"/>
+                <text x="60" y="274">SMB</text>
+                <rect class="svg-anim-bar" style="--bar-delay:0.8s" x="100" y="264" width="55" height="10" fill="var(--accent)" opacity="0.4" rx="1"/>
+                <text x="60" y="292">HML</text>
+                <rect class="svg-anim-bar" style="--bar-delay:1.0s" x="100" y="282" width="90" height="10" fill="var(--accent)" opacity="0.5" rx="1"/>
+              </g>
+            </svg>
+          </div>
+          <div class="project-body">
+            <span class="project-num">02 · Live Demo</span>
+            <h3 class="project-title">Risk Analytics Dashboard</h3>
+            <p class="project-desc">Real&#8209;time portfolio risk dashboard with VaR/CVaR gauges, GARCH forecasting, factor exposure decomposition, and stress&#8209;test scenario analysis.</p>
+            <span class="project-arrow">View Dashboard &#8599;</span>
+          </div>
+        </a>
+
+        <!-- Card 03: Risk Management Suite -->
+        <a class="project-card reveal delay-3" href="https://github.com/WeCulp/Risk-Management" target="_blank" rel="noopener">
+          <div class="project-render">
+            <div class="dot-pattern"></div>
+            <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <linearGradient id="rmFan" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.2"/>
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Grid -->
+              <g stroke="var(--rule)" stroke-width="0.5">
+                <line x1="40" y1="60" x2="440" y2="60"/>
+                <line x1="40" y1="120" x2="440" y2="120"/>
+                <line x1="40" y1="180" x2="440" y2="180"/>
+                <line x1="40" y1="240" x2="440" y2="240"/>
+              </g>
+              <!-- VaR line -->
+              <g class="svg-anim-fade" style="--fade-delay:1.6s">
+                <line x1="40" y1="198" x2="440" y2="198" stroke="var(--accent)" stroke-width="1" stroke-dasharray="6 3" opacity="0.6"/>
+                <text x="442" y="195" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--accent)">VaR 95%</text>
+              </g>
+              <!-- CVaR shade -->
+              <rect class="svg-anim-fade" style="--fade-delay:1.8s" x="40" y="198" width="400" height="48" fill="var(--accent)" opacity="0.04" rx="1"/>
+              <!-- Fan envelope -->
+              <path class="svg-anim-fade" style="--fade-delay:0.5s"
+                d="M40,150 Q120,40 240,30 Q360,40 440,60 L440,240 Q360,260 240,270 Q120,260 40,150 Z"
+                fill="url(#rmFan)" opacity="0.65"/>
+              <!-- Monte Carlo paths -->
+              <g fill="none" opacity="0.4">
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.1s" d="M40,150 Q120,140 200,120 T440,80" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.2s" d="M40,150 Q130,155 210,145 T440,110" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.3s" d="M40,150 Q115,135 195,115 T440,70" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.4s" d="M40,150 Q125,160 205,150 T440,120" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.5s" d="M40,150 Q120,130 200,105 T440,55" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.6s" d="M40,150 Q130,165 215,160 T440,140" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.7s" d="M40,150 Q120,145 205,128 T440,92" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.8s" d="M40,150 Q125,155 210,152 T440,128" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:0.9s" d="M40,150 Q115,140 200,118 T440,72" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:1.0s" d="M40,150 Q130,150 215,140 T440,100" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:1.1s" d="M40,150 Q120,168 205,165 T440,155" stroke="var(--accent)" stroke-width="0.7"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2.5s;--draw-delay:1.2s" d="M40,150 Q128,172 212,168 T440,165" stroke="var(--accent)" stroke-width="0.7"/>
+              </g>
+              <!-- Mean path -->
+              <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2s;--draw-delay:0.3s"
+                d="M40,150 Q130,148 215,135 T440,95" stroke="var(--accent)" stroke-width="2.5" fill="none"/>
+              <!-- Origin -->
+              <circle class="svg-pulse-dot" cx="40" cy="150" r="4" fill="var(--accent)"/>
+              <!-- Distribution at endpoint -->
+              <g class="svg-anim-fade" style="--fade-delay:2s" transform="translate(440,0)">
+                <path d="M0,45 Q15,60 15,95 Q15,130 0,150 Q-15,170 -15,200 Q-15,230 0,245"
+                  stroke="var(--accent)" stroke-width="0.8" fill="var(--accent)" fill-opacity="0.05" opacity="0.6"/>
+              </g>
+              <!-- Labels -->
+              <text x="48" y="146" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--ink-subtle)">S0</text>
+              <text x="400" y="30" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--ink-subtle)">P95</text>
+              <text x="400" y="262" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--ink-subtle)">P5</text>
+            </svg>
+          </div>
+          <div class="project-body">
+            <span class="project-num">03 · MGMTMFE 409</span>
+            <h3 class="project-title">Financial Risk Management Suite</h3>
+            <p class="project-desc">Eight projects spanning Component VaR, GARCH backtesting, Stulz multi&#8209;asset options, CDS hazard bootstrapping, and the Merton structural credit model.</p>
+            <span class="project-arrow">View Repo &#8599;</span>
+          </div>
+        </a>
+
+        <!-- Card 04: Volatility Surface -->
+        <a class="project-card reveal delay-4" href="/volatility-surface/" target="_blank" rel="noopener">
+          <div class="project-render">
+            <div class="dot-pattern"></div>
+            <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <linearGradient id="volSurf1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.6"/>
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.08"/>
+                </linearGradient>
+                <linearGradient id="volSurf2" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.02"/>
+                </linearGradient>
+              </defs>
+              <!-- Isometric 3D surface — skewed perspective grid with smile curvature -->
+              <!-- Back-to-front rows creating depth illusion -->
+              <g fill="none" opacity="0.3">
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:1.5s;--draw-delay:0.05s" d="M60,75 Q140,55 220,50 Q300,55 380,60 L420,85" stroke="var(--accent)" stroke-width="0.6"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:1.5s;--draw-delay:0.1s" d="M55,95 Q135,70 220,62 Q305,70 385,78 L425,105" stroke="var(--accent)" stroke-width="0.6"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:1.5s;--draw-delay:0.15s" d="M50,115 Q130,85 220,75 Q310,85 390,98 L430,128" stroke="var(--accent)" stroke-width="0.7"/>
+              </g>
+              <!-- Mid rows — more visible -->
+              <g fill="none" opacity="0.5">
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:1.5s;--draw-delay:0.2s" d="M45,138 Q125,100 220,88 Q315,100 395,118 L435,152" stroke="var(--accent)" stroke-width="0.8"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:1.5s;--draw-delay:0.25s" d="M40,162 Q120,118 220,102 Q320,118 400,140 L440,178" stroke="var(--accent)" stroke-width="0.9"/>
+              </g>
+              <!-- Front rows — most prominent (the smile is visible here) -->
+              <g fill="none">
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:1.5s;--draw-delay:0.3s" d="M35,188 Q115,138 220,118 Q325,138 405,165 L445,205" stroke="var(--accent)" stroke-width="1" opacity="0.65"/>
+                <path class="svg-anim-draw" style="--path-len:500;--draw-dur:1.5s;--draw-delay:0.35s" d="M30,215 Q110,158 220,135 Q330,158 410,192 L448,235" stroke="var(--accent)" stroke-width="1.2" opacity="0.8"/>
+              </g>
+              <!-- Highlighted front smile — the main feature -->
+              <path class="svg-anim-draw" style="--path-len:500;--draw-dur:2s;--draw-delay:0.5s"
+                d="M25,245 Q105,180 220,155 Q335,180 415,220 L452,268"
+                stroke="var(--accent)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.95"/>
+              <!-- Gradient fill under the front smile -->
+              <path class="svg-anim-fade" style="--fade-delay:1.2s"
+                d="M25,245 Q105,180 220,155 Q335,180 415,220 L452,268 L452,290 L25,290 Z"
+                fill="url(#volSurf2)"/>
+              <!-- Depth connectors (vertical lines connecting rows for 3D effect) -->
+              <g class="svg-anim-fade" style="--fade-delay:0.8s" stroke="var(--accent)" stroke-width="0.4" opacity="0.2">
+                <line x1="120" y1="62" x2="95" y2="190"/>
+                <line x1="220" y1="50" x2="220" y2="155"/>
+                <line x1="320" y1="62" x2="345" y2="190"/>
+                <line x1="170" y1="55" x2="155" y2="172"/>
+                <line x1="270" y1="55" x2="285" y2="172"/>
+              </g>
+              <!-- Contour glow on the peak -->
+              <circle class="svg-anim-fade svg-pulse-dot" style="--fade-delay:1.5s" cx="220" cy="155" r="4" fill="var(--accent)" opacity="0.8"/>
+              <!-- Axis labels -->
+              <text class="svg-anim-fade" style="--fade-delay:1.8s" x="25" y="25" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--ink-subtle)">IV</text>
+              <text class="svg-anim-fade" style="--fade-delay:1.8s" x="420" y="285" font-family="JetBrains Mono,monospace" font-size="9" fill="var(--ink-subtle)">strike</text>
+              <text class="svg-anim-fade" style="--fade-delay:1.8s" x="55" y="285" font-family="JetBrains Mono,monospace" font-size="9" fill="var(--ink-subtle)">DTE</text>
+              <!-- Surface label -->
+              <g class="svg-anim-fade" style="--fade-delay:2s">
+                <text x="340" y="42" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--accent)" letter-spacing="0.08em">3D IV SURFACE</text>
+              </g>
+            </svg>
+          </div>
+          <div class="project-body">
+            <span class="project-num">04 · Live Demo</span>
+            <h3 class="project-title">Volatility Surface Explorer</h3>
+            <p class="project-desc">Real&#8209;time 3D implied vol surface with 10 color palettes, four Z&#8209;metrics, smoothing, and side&#8209;by&#8209;side term structure &amp; skew slice charts.</p>
+            <span class="project-arrow">Launch App &#8599;</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 04 EXPERIENCE ── -->
+  <section id="experience">
+    <div class="container">
+      <div class="section-label reveal">04 — Experience</div>
+      <div class="xp-grid">
+        <h2 class="xp-heading reveal delay-1">Six years across data, product, and research.</h2>
+        <div class="xp-list reveal delay-2">
+
+          <div class="xp-item">
+            <span class="xp-dates">Feb 2026 — Present</span>
+            <h3 class="xp-role">Quantitative Researcher</h3>
+            <div class="xp-company">UCLA Anderson School of Management · Los Angeles</div>
+            <p class="xp-desc">Researching neural&#8209;network&#8209;weighted Monte Carlo to accelerate pricing of path&#8209;dependent exotic options. Designing and backtesting alpha signals via WorldQuant BRAIN.</p>
+          </div>
+
+          <div class="xp-item">
+            <span class="xp-dates">May 2025 — Nov 2025</span>
+            <h3 class="xp-role">Quantitative Analyst</h3>
+            <div class="xp-company">Link Capital LLC · Los Angeles</div>
+            <p class="xp-desc">Built Python/SQL ETL for large structured&#8209;finance portfolios. Engineered cash&#8209;flow waterfall models for SPV securitized loans with dynamic loss curves.</p>
+          </div>
+
+          <div class="xp-item">
+            <span class="xp-dates">Jan 2023 — Jun 2024</span>
+            <h3 class="xp-role">Associate — Data &amp; Product Management</h3>
+            <div class="xp-company">American Express · Gurugram</div>
+            <p class="xp-desc">Product owner for the Enterprise Data Warehouse; spearheaded ingestion and production updates for 1B+ rows of customer financial data. Refactored legacy PySpark/HIVE jobs from 24h &#8594; 3&#8209;4h runtimes.</p>
+          </div>
+
+          <div class="xp-item">
+            <span class="xp-dates">Aug 2021 — Dec 2022</span>
+            <h3 class="xp-role">Associate — Data Analytics</h3>
+            <div class="xp-company">American Express · Gurugram</div>
+            <p class="xp-desc">Root&#8209;cause analysis and rapid production resolution for data&#8209;quality issues in Agile Scrum teams. Built Excel/VBA and Tableau dashboards for enterprise data health.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 05 CONTACT ── -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-label reveal">05 — Contact</div>
+      <div class="contact-body reveal delay-1">
+        <h2>Let's talk<br>about markets.</h2>
+        <p>Open to full&#8209;time quantitative research and trading roles starting early 2026. Always happy to chat about derivatives pricing, volatility modelling, or anything that lives at the edge of code and markets.</p>
+      </div>
+      <div class="contact-links reveal delay-2">
+        <a class="contact-link" href="mailto:admin@vikalpthukral.com">
+          <span class="label">Email</span>
+          <span class="val">admin@vikalpthukral.com</span>
+        </a>
+        <a class="contact-link" href="https://linkedin.com/in/vikalp-thukral" target="_blank" rel="noopener">
+          <span class="label">LinkedIn</span>
+          <span class="val">/in/vikalp-thukral</span>
+        </a>
+        <a class="contact-link" href="https://github.com/WeCulp" target="_blank" rel="noopener">
+          <span class="label">GitHub</span>
+          <span class="val">github.com/WeCulp</span>
+        </a>
+        <a class="contact-link" href="assets/Vikalp_Thukral_Resume.pdf" download>
+          <span class="label">Resume</span>
+          <span class="val">Download PDF &#8595;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>&copy; 2026 Vikalp Thukral</div>
+    <div>Built in Los Angeles · Updated Apr 2026</div>
+    <div><a href="projects.html">Projects</a> · <a href="https://github.com/WeCulp" target="_blank" rel="noopener">GitHub</a> · <a href="mailto:admin@vikalpthukral.com">Email</a></div>
+  </div>
+</footer>
+
+<script>
+  /*  Random accent color — picks once per session, persists across pages */
+  const PALETTE = [
+    { name:"teal",   dark:"#4fd1c5", light:"#0a7f8f", hover_d:"#6de2d7", hover_l:"#066675", soft_d:"rgba(79,209,197,0.1)",  soft_l:"rgba(10,127,143,0.08)"  },
+    { name:"blue",   dark:"#60a5fa", light:"#2563eb", hover_d:"#93c5fd", hover_l:"#1d4ed8", soft_d:"rgba(96,165,250,0.1)",  soft_l:"rgba(37,99,235,0.08)"   },
+    { name:"pink",   dark:"#f472b6", light:"#db2777", hover_d:"#f9a8d4", hover_l:"#be185d", soft_d:"rgba(244,114,182,0.1)", soft_l:"rgba(219,39,119,0.08)"  },
+    { name:"amber",  dark:"#fbbf24", light:"#b45309", hover_d:"#fcd34d", hover_l:"#92400e", soft_d:"rgba(251,191,36,0.1)",  soft_l:"rgba(180,83,9,0.08)"    },
+    { name:"lime",   dark:"#34d399", light:"#047857", hover_d:"#6ee7b7", hover_l:"#065f46", soft_d:"rgba(52,211,153,0.1)",  soft_l:"rgba(4,120,87,0.08)"    },
+    { name:"violet", dark:"#a78bfa", light:"#7c3aed", hover_d:"#c4b5fd", hover_l:"#6d28d9", soft_d:"rgba(167,139,250,0.1)", soft_l:"rgba(124,58,237,0.08)"  },
+  ];
+
+  function pickAccent() {
+    let idx = sessionStorage.getItem("accent-idx");
+    if (idx === null) { idx = Math.floor(Math.random() * PALETTE.length); sessionStorage.setItem("accent-idx", idx); }
+    return PALETTE[idx];
+  }
+
+  function applyAccent() {
+    const c = pickAccent();
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.documentElement.style.setProperty("--accent",       isDark ? c.dark : c.light);
+    document.documentElement.style.setProperty("--accent-hover",  isDark ? c.hover_d : c.hover_l);
+    document.documentElement.style.setProperty("--accent-soft",   isDark ? c.soft_d : c.soft_l);
+  }
+
+  /*  Theme handling — respects OS preference, persists in localStorage */
+  (function () {
+    const root = document.documentElement;
+    const stored = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initial = stored || (prefersDark ? "dark" : "light");
+    root.setAttribute("data-theme", initial);
+    applyAccent();
+
+    const btn = document.getElementById("themeToggle");
+    btn.addEventListener("click", () => {
+      const current = root.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      applyAccent();
+      renderHeroSurface();
+    });
+  })();
+
+  /*  Sticky header state */
+  (function () {
+    const header = document.getElementById("siteHeader");
+    const onScroll = () => {
+      if (window.scrollY > 12) header.classList.add("scrolled");
+      else header.classList.remove("scrolled");
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  })();
+
+  /*  Reveal on scroll */
+  (function () {
+    const els = document.querySelectorAll(".reveal");
+    if (!("IntersectionObserver" in window)) {
+      els.forEach((el) => el.classList.add("in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("in");
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -5% 0px" }
+    );
+    els.forEach((el) => io.observe(el));
+  })();
+
+  /*  Hero mini volatility surface — synthetic, rendered via Plotly */
+  function renderHeroSurface() {
+    const el = document.getElementById("heroSurface");
+    if (!el || typeof Plotly === "undefined") return;
+
+    const K = 32, T = 20;
+    const strikes = [];
+    for (let i = 0; i < K; i++) strikes.push(0.82 + i * 0.011);
+    const dtes = [];
+    for (let j = 0; j < T; j++) dtes.push(7 + j * 12);
+
+    const z = [];
+    for (let j = 0; j < T; j++) {
+      const row = [];
+      const dte = dtes[j];
+      const termBase = 0.17 + 0.09 * Math.exp(-dte / 65);
+      for (let i = 0; i < K; i++) {
+        const m = Math.log(strikes[i]);
+        const smile = 0.55 * m * m + 0.08 * m;
+        const value = termBase + smile * (0.7 + 0.2 * Math.exp(-dte / 120));
+        row.push(value);
+      }
+      z.push(row);
+    }
+
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const c = pickAccent();
+    const accent = isDark ? c.dark : c.light;
+
+    function hexToRgb(h) {
+      const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16);
+      return [r,g,b];
+    }
+    function mix(bg, fg, t) {
+      return fg.map((v,i) => Math.round(bg[i] + (v - bg[i]) * t));
+    }
+    function rgbHex([r,g,b]) {
+      return "#" + [r,g,b].map(v => v.toString(16).padStart(2,"0")).join("");
+    }
+    const acRgb = hexToRgb(accent);
+    const baseDark = [9,9,11], baseLight = [250,250,247];
+    const bg = isDark ? baseDark : baseLight;
+    const colorscale = [
+      [0.0,  rgbHex(mix(bg, acRgb, isDark ? 0.08 : 0.06))],
+      [0.25, rgbHex(mix(bg, acRgb, isDark ? 0.22 : 0.2))],
+      [0.5,  rgbHex(mix(bg, acRgb, isDark ? 0.42 : 0.45))],
+      [0.75, rgbHex(mix(bg, acRgb, isDark ? 0.65 : 0.7))],
+      [1.0,  rgbHex(mix(bg, acRgb, isDark ? 0.88 : 1.0))],
+    ];
+
+    const data = [
+      {
+        type: "surface",
+        x: strikes,
+        y: dtes,
+        z: z,
+        colorscale: colorscale,
+        showscale: false,
+        opacity: 0.96,
+        lighting: {
+          ambient: 0.6,
+          diffuse: 0.7,
+          specular: 0.15,
+          roughness: 0.65,
+          fresnel: 0.1,
+        },
+        lightposition: { x: 100, y: 200, z: 100 },
+        contours: {
+          z: {
+            show: true,
+            usecolormap: true,
+            highlightcolor: accent,
+            project: { z: false },
+            width: 2,
+          },
+        },
+      },
+    ];
+
+    const layout = {
+      margin: { l: 0, r: 0, t: 0, b: 0 },
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      scene: {
+        bgcolor: "rgba(0,0,0,0)",
+        aspectmode: "manual",
+        aspectratio: { x: 1.4, y: 1.1, z: 0.75 },
+        camera: {
+          eye: { x: 1.5, y: -1.7, z: 0.95 },
+          center: { x: 0, y: 0, z: -0.1 },
+        },
+        xaxis: { visible: false },
+        yaxis: { visible: false },
+        zaxis: { visible: false },
+      },
+    };
+
+    Plotly.newPlot(el, data, layout, {
+      displayModeBar: false,
+      responsive: true,
+      staticPlot: false,
+    });
+  }
+
+  window.addEventListener("load", renderHeroSurface);
+  window.addEventListener("resize", () => {
+    if (window.Plotly) Plotly.Plots.resize(document.getElementById("heroSurface"));
+  });
+
+  /*  Mouse-reactive hero text (parallax depth effect) */
+  (function () {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const hero = document.getElementById("hero");
+    const headline = document.querySelector(".hero-headline");
+    const blurb = document.querySelector(".hero-blurb");
+    const meta = document.querySelector(".hero-meta");
+    const cta = document.querySelector(".hero-cta");
+    if (!hero || !headline) return;
+
+    let ticking = false;
+    hero.addEventListener("mousemove", (e) => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const rect = hero.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        headline.style.transform = "translate(" + (x * 30) + "px, " + (y * 18) + "px)";
+        if (blurb) blurb.style.transform = "translate(" + (-x * 14) + "px, " + (-y * 8) + "px)";
+        if (cta) cta.style.transform = "translate(" + (-x * 8) + "px, " + (-y * 5) + "px)";
+        if (meta) meta.style.transform = "translate(" + (x * 6) + "px, " + (y * 4) + "px)";
+        ticking = false;
+      });
+    });
+
+    hero.addEventListener("mouseleave", () => {
+      headline.style.transform = "";
+      if (blurb) blurb.style.transform = "";
+      if (cta) cta.style.transform = "";
+      if (meta) meta.style.transform = "";
+    });
+  })();
+
+  /*  3D card tilt on hover */
+  (function () {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.querySelectorAll(".project-card").forEach((card) => {
+      card.addEventListener("mousemove", (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform =
+          "perspective(800px) rotateY(" + (x * 5) + "deg) rotateX(" + (-y * 5) + "deg) scale(1.01)";
+      });
+      card.addEventListener("mouseleave", () => {
+        card.style.transform = "";
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
