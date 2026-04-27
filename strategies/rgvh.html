@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RGVH — Regime-Gated Vol Harvester · Vikalp Thukral</title>
+<meta name="description" content="A short-volatility strategy on SPY ATM straddles, gated by three independent macro/market regime filters. Net Sharpe 3.38 across a 12.15-year strict walk-forward OOS window." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg: #fafaf7;
+    --bg-raised: #ffffff;
+    --ink: #0a0b0d;
+    --ink-muted: #565a63;
+    --ink-subtle: #9ca0a8;
+    --rule: rgba(10, 11, 13, 0.09);
+    --rule-strong: rgba(10, 11, 13, 0.18);
+    --accent: #0a7f8f;
+    --accent-hover: #066675;
+    --accent-soft: rgba(10, 127, 143, 0.08);
+    --font-display: "Inter Tight", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Consolas, monospace;
+    --max-w: 1200px;
+    --max-w-narrow: 760px;
+    --gutter: clamp(1.25rem, 4vw, 4rem);
+  }
+  [data-theme="dark"] {
+    --bg: #09090b;
+    --bg-raised: #111114;
+    --ink: #ececf0;
+    --ink-muted: #8b8f98;
+    --ink-subtle: #4b4f57;
+    --rule: rgba(236, 236, 240, 0.08);
+    --rule-strong: rgba(236, 236, 240, 0.18);
+    --accent: #4fd1c5;
+    --accent-hover: #6de2d7;
+    --accent-soft: rgba(79, 209, 197, 0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 400;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+
+  /* Header (same as rest of site) */
+  header.site-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+  header.site-header.scrolled { border-bottom-color: var(--rule); }
+  .header-inner {
+    max-width: var(--max-w); margin: 0 auto;
+    padding: 1.1rem var(--gutter);
+    display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 700; font-size: 1.05rem;
+    letter-spacing: -0.01em; display: flex; align-items: center; gap: 0.6rem;
+  }
+  .brand-mark {
+    width: 28px; height: 28px; border: 1.5px solid var(--ink);
+    display: grid; place-items: center;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  }
+  nav.primary {
+    display: flex; gap: 2.5rem; align-items: center;
+    font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.02em;
+  }
+  nav.primary a { color: var(--ink-muted); position: relative; padding: 0.2rem 0; transition: color 0.25s; }
+  nav.primary a:hover { color: var(--ink); }
+  nav.primary a::after {
+    content: ""; position: absolute; left: 0; bottom: -2px;
+    width: 0; height: 1px; background: var(--accent); transition: width 0.3s ease;
+  }
+  nav.primary a:hover::after { width: 100%; }
+  nav.primary a.active { color: var(--ink); }
+  nav.primary a.active::after { width: 100%; }
+
+  .theme-toggle {
+    background: transparent; border: 1px solid var(--rule-strong); color: var(--ink);
+    width: 36px; height: 36px; display: grid; place-items: center;
+    cursor: pointer; transition: all 0.25s;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .theme-toggle svg { width: 16px; height: 16px; }
+  .theme-toggle .moon { display: none; }
+  [data-theme="dark"] .theme-toggle .sun { display: none; }
+  [data-theme="dark"] .theme-toggle .moon { display: block; }
+
+  @media (max-width: 720px) { nav.primary { display: none; } }
+
+  /* Layout */
+  main { padding-top: 70px; }
+  .container { max-width: var(--max-w); margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter); }
+  .container-narrow { max-width: var(--max-w-narrow); margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter); }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display); font-weight: 700;
+    letter-spacing: -0.025em; line-height: 1.05; color: var(--ink);
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    font-family: var(--font-mono); font-size: 0.72rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-subtle); margin-bottom: 1.75rem;
+  }
+  .breadcrumb a { color: var(--ink-muted); transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--accent); }
+  .breadcrumb svg { width: 11px; height: 11px; opacity: 0.6; }
+
+  /* Hero */
+  .strat-hero {
+    padding: clamp(6rem, 12vh, 10rem) 0 clamp(3rem, 6vh, 5rem);
+  }
+  .strat-tag {
+    font-family: var(--font-mono); font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 0.7rem;
+  }
+  .strat-tag::before {
+    content: ""; display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .strat-hero h1 {
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    font-weight: 800; letter-spacing: -0.04em; line-height: 0.95;
+    max-width: 18ch;
+  }
+  .strat-hero .lede {
+    font-size: clamp(1.05rem, 1.55vw, 1.3rem);
+    line-height: 1.55;
+    color: var(--ink-muted);
+    margin-top: 1.75rem;
+    max-width: 60ch;
+  }
+  .strat-hero .lede strong { color: var(--ink); font-weight: 600; }
+
+  .strat-cta {
+    display: flex; flex-wrap: wrap; gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.85rem 1.35rem;
+    font-family: var(--font-mono); font-size: 0.74rem;
+    font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    border: 1px solid var(--rule-strong); color: var(--ink);
+    transition: all 0.25s;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn.primary:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  [data-theme="dark"] .btn.primary:hover { color: var(--bg); }
+  .btn svg { width: 13px; height: 13px; }
+
+  /* KPI strip */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--rule-strong);
+    border: 1px solid var(--rule-strong);
+    margin-top: 4rem;
+  }
+  @media (min-width: 720px) {
+    .kpi-strip { grid-template-columns: repeat(4, 1fr); }
+  }
+  .kpi-cell {
+    background: var(--bg);
+    padding: 1.5rem 1.25rem;
+  }
+  .kpi-label {
+    font-family: var(--font-mono); font-size: 0.65rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-subtle); margin-bottom: 0.65rem;
+  }
+  .kpi-value {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .kpi-value.accent { color: var(--accent); }
+  .kpi-sub {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    color: var(--ink-subtle); margin-top: 0.3rem;
+  }
+
+  /* Section blocks */
+  section.block {
+    padding: clamp(3.5rem, 8vh, 6rem) 0;
+    border-top: 1px solid var(--rule);
+  }
+  section.block:first-of-type { border-top: none; }
+
+  .section-eyebrow {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-subtle); margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.85rem;
+  }
+  .section-eyebrow::before {
+    content: ""; width: 28px; height: 1px; background: var(--ink-subtle);
+  }
+
+  h2.section-title {
+    font-size: clamp(1.85rem, 3.5vw, 2.7rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 2rem;
+    max-width: 22ch;
+  }
+
+  h3.subhead {
+    font-size: clamp(1.2rem, 2vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 2.5rem 0 1rem;
+  }
+
+  p.body {
+    font-size: clamp(1rem, 1.15vw, 1.05rem);
+    line-height: 1.75;
+    color: var(--ink-muted);
+    margin-bottom: 1.25rem;
+    max-width: 70ch;
+  }
+  p.body strong { color: var(--ink); font-weight: 600; }
+  p.body em { font-style: italic; color: var(--ink); }
+  p.body code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 0.1em 0.45em;
+    border-radius: 2px;
+  }
+
+  /* Pull quote */
+  .pull {
+    border-left: 2px solid var(--accent);
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    margin: 2rem 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 1.6vw, 1.4rem);
+    line-height: 1.45;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    max-width: 60ch;
+  }
+
+  /* Tables */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    margin: 1.5rem 0 2rem;
+  }
+  .data-table th, .data-table td {
+    text-align: left;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .data-table thead th {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-subtle);
+    border-bottom: 1px solid var(--rule-strong);
+    font-weight: 500;
+  }
+  .data-table td:first-child {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .data-table td.num {
+    font-family: var(--font-mono);
+    font-feature-settings: "tnum";
+    text-align: right;
+  }
+  .data-table td.accent {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .data-table tbody tr:hover {
+    background: var(--accent-soft);
+  }
+  .table-wrap { overflow-x: auto; margin: 0 -0.5rem; padding: 0 0.5rem; }
+
+  /* Figure */
+  .figure {
+    margin: 2.5rem 0;
+    background: var(--bg-raised);
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+  .figure img {
+    width: 100%; height: auto; display: block;
+    background: #fff;
+  }
+  [data-theme="dark"] .figure img {
+    /* most matplotlib plots have white backgrounds — soften slightly */
+    opacity: 0.96;
+  }
+  .figure figcaption {
+    padding: 0.85rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-subtle);
+    border-top: 1px solid var(--rule);
+    background: var(--bg);
+  }
+  .figure figcaption strong { color: var(--ink-muted); font-weight: 500; }
+
+  /* Filter cards */
+  .filter-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin: 2rem 0 2.5rem;
+  }
+  @media (min-width: 880px) {
+    .filter-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .filter-card {
+    border: 1px solid var(--rule-strong);
+    background: var(--bg-raised);
+    padding: 1.75rem 1.5rem;
+    transition: border-color 0.3s;
+  }
+  .filter-card:hover { border-color: var(--accent); }
+  .filter-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 0.85rem;
+  }
+  .filter-rule {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 0.55rem 0.75rem;
+    margin: 0.5rem 0 1rem;
+    display: inline-block;
+    border-radius: 2px;
+    word-break: break-all;
+  }
+  .filter-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.015em;
+  }
+  .filter-card p {
+    font-size: 0.92rem;
+    color: var(--ink-muted);
+    line-height: 1.65;
+  }
+
+  /* Callout box */
+  .callout {
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+    padding: clamp(1.5rem, 3vw, 2rem);
+    margin: 2.5rem 0;
+  }
+  .callout-tag {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.8rem;
+  }
+  .callout p {
+    font-size: 0.98rem; color: var(--ink); line-height: 1.65;
+    max-width: 64ch;
+  }
+  .callout p:not(:last-child) { margin-bottom: 1rem; }
+  .callout strong { font-weight: 600; }
+
+  /* List */
+  ul.body, ol.body {
+    margin: 1.25rem 0 1.5rem 1.4rem;
+    color: var(--ink-muted);
+    font-size: clamp(1rem, 1.15vw, 1.05rem);
+    line-height: 1.75;
+  }
+  ul.body li, ol.body li {
+    margin-bottom: 0.7rem;
+    padding-left: 0.4rem;
+  }
+  ul.body li::marker { color: var(--accent); }
+  ol.body li::marker { color: var(--accent); font-weight: 600; }
+
+  /* Footer */
+  footer.site-footer { border-top: 1px solid var(--rule); padding: 2.5rem 0 3rem; margin-top: 3rem; }
+  .footer-inner {
+    max-width: var(--max-w); margin: 0 auto; padding: 0 var(--gutter);
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem;
+    font-family: var(--font-mono); font-size: 0.72rem;
+    letter-spacing: 0.06em; color: var(--ink-subtle); text-transform: uppercase;
+  }
+  .footer-inner a { color: var(--ink-subtle); transition: color 0.25s; }
+  .footer-inner a:hover { color: var(--accent); }
+
+  /* Reveal */
+  .reveal {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: 0.08s; }
+  .reveal.delay-2 { transition-delay: 0.16s; }
+  .reveal.delay-3 { transition-delay: 0.24s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+
+<body>
+
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark">VT</span>
+      <span>Vikalp Thukral</span>
+    </a>
+    <nav class="primary">
+      <a href="/">Home</a>
+      <a href="/#about">About</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/strategies.html" class="active">Strategies</a>
+      <a href="/#experience">Experience</a>
+      <a href="/#contact">Contact</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="strat-hero">
+    <div class="container">
+      <div class="breadcrumb reveal">
+        <a href="/strategies.html">&larr; Strategies</a>
+        <span>/</span>
+        <span>Options</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        <span>RGVH</span>
+      </div>
+
+      <div class="strat-tag reveal">01 &middot; SPY Options &middot; VRP Harvest</div>
+
+      <h1 class="reveal delay-1">RGVH &mdash; Regime&#8209;Gated<br>Vol Harvester.</h1>
+
+      <p class="lede reveal delay-2">
+        A short&#8209;volatility strategy on SPY ATM straddles, gated by three independent macro/market regime filters, achieving a <strong>net Sharpe of 3.38</strong> across a strict walk&#8209;forward 12&#8209;year out&#8209;of&#8209;sample window (2013-07 &rarr; 2025-08), net of bid&#8209;ask spread, commissions, and delta&#8209;hedge slippage.
+      </p>
+
+      <div class="strat-cta reveal delay-3">
+        <a class="btn primary" href="https://github.com/Weculp/Trading-Strategies/blob/main/Options/RGVH-Regime-Gated-Vol-Harvester/PAPER.pdf" target="_blank" rel="noopener">
+          Read Full Paper (PDF)
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+        </a>
+        <a class="btn" href="https://github.com/Weculp/Trading-Strategies/tree/main/Options/RGVH-Regime-Gated-Vol-Harvester" target="_blank" rel="noopener">
+          Source Code
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+        </a>
+        <a class="btn" href="https://github.com/Weculp/Trading-Strategies/blob/main/Options/RGVH-Regime-Gated-Vol-Harvester/README.md" target="_blank" rel="noopener">
+          README
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+        </a>
+      </div>
+
+      <div class="kpi-strip reveal delay-3">
+        <div class="kpi-cell">
+          <div class="kpi-label">Net Sharpe</div>
+          <div class="kpi-value accent">3.38</div>
+          <div class="kpi-sub">vs SPY 0.85</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">CAGR (PM)</div>
+          <div class="kpi-value">20.1%</div>
+          <div class="kpi-sub">$100k &rarr; $1.00M / 12y</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">Max Drawdown</div>
+          <div class="kpi-value">&minus;7.8%</div>
+          <div class="kpi-sub">vs SPY &minus;33.7%</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">Hit Rate</div>
+          <div class="kpi-value">68.3%</div>
+          <div class="kpi-sub">~90 trades / yr</div>
+        </div>
+      </div>
+
+      <figure class="figure reveal" style="margin-top: 3rem;">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/01_executive_summary.png" alt="Executive summary panel" loading="lazy"/>
+        <figcaption><strong>Fig. 1</strong> &middot; Executive summary &middot; KPI tiles, equity curve, rolling Sharpe, and drawdown vs SPY (rescaled).</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- TL;DR -->
+  <section class="block">
+    <div class="container">
+      <div class="section-eyebrow reveal">01 &middot; TL;DR</div>
+      <h2 class="section-title reveal delay-1">Headline numbers, side by side.</h2>
+
+      <p class="body reveal delay-1">
+        The strategy is the well&#8209;known <strong>Variance Risk Premium (VRP) harvest</strong> &mdash; short ATM straddles, delta&#8209;hedged daily &mdash; but with <strong>three regime filters</strong> that skip ~64% of trade days and almost completely eliminate the historically&#8209;catastrophic short&#8209;vol losses.
+      </p>
+
+      <div class="table-wrap reveal delay-2">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th class="num">RGVH</th>
+              <th class="num">SPY buy&#8209;and&#8209;hold</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Net Sharpe</td><td class="num accent">3.38</td><td class="num">0.85</td></tr>
+            <tr><td>Annual net P&amp;L</td><td class="num">$1,004 / $1k vega</td><td class="num">&mdash;</td></tr>
+            <tr><td>CAGR (Reg&#8209;T)</td><td class="num">5.7%</td><td class="num">13.5%</td></tr>
+            <tr><td>CAGR (Portfolio Margin)</td><td class="num accent">20.1%</td><td class="num">13.5%</td></tr>
+            <tr><td>$100k &rarr; after 12.15y (Reg&#8209;T)</td><td class="num">$200k</td><td class="num">$491k</td></tr>
+            <tr><td>$100k &rarr; after 12.15y (PM)</td><td class="num accent">$1.00M</td><td class="num">$491k</td></tr>
+            <tr><td>Max drawdown (Reg&#8209;T)</td><td class="num">&minus;7.8%</td><td class="num">&minus;33.7%</td></tr>
+            <tr><td>Hit rate</td><td class="num accent">68.3%</td><td class="num">&mdash;</td></tr>
+            <tr><td>Trades / year</td><td class="num">~90</td><td class="num">0</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout reveal delay-2">
+        <div class="callout-tag">Intended Use</div>
+        <p>
+          <strong>Not "RGVH instead of SPY"</strong> &mdash; rather, a small RGVH overlay on a SPY core portfolio. RGVH's monthly returns are weakly correlated with SPY (Pearson &rho; &approx; 0); even a 10&ndash;20% allocation lifts portfolio Sharpe meaningfully.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARE WE BEATING THE MARKET -->
+  <section class="block">
+    <div class="container">
+      <div class="section-eyebrow reveal">02 &middot; Comparison</div>
+      <h2 class="section-title reveal delay-1">Are we beating the market?</h2>
+
+      <p class="body reveal delay-1">
+        Depends on the lens &mdash; and the honest answer matters.
+      </p>
+
+      <figure class="figure reveal delay-1">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/03_rgvh_vs_spy_dashboard.png" alt="Head-to-head dashboard" loading="lazy"/>
+        <figcaption><strong>Fig. 2</strong> &middot; Four&#8209;panel head&#8209;to&#8209;head &middot; equity curves, rolling Sharpe, underwater drawdown, daily return distribution.</figcaption>
+      </figure>
+
+      <div class="table-wrap reveal delay-2">
+        <table class="data-table">
+          <thead>
+            <tr><th>Lens</th><th>Winner</th><th>Why</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Absolute $, Reg&#8209;T retail</td><td>SPY (14% vs 5.7%)</td><td class="num" style="text-align:left">High margin requirement on short straddles eats into Reg&#8209;T returns</td></tr>
+            <tr><td>Absolute $, Portfolio Margin</td><td class="accent">RGVH (19.2% vs 14%)</td><td class="num" style="text-align:left">PM cuts margin to ~6% of underlying &mdash; same trade returns 3&times; more</td></tr>
+            <tr><td>Risk&#8209;adjusted (Sharpe)</td><td class="accent">RGVH 4&times; (3.38 vs 0.85)</td><td class="num" style="text-align:left">RGVH avoids volatile regimes that dominate SPY's vol profile</td></tr>
+            <tr><td>Drawdown profile</td><td class="accent">RGVH dominates</td><td class="num" style="text-align:left">Filters skip the regimes where deep losses cluster</td></tr>
+            <tr><td>Correlation to SPY</td><td class="accent">RGVH &approx; uncorrelated</td><td class="num" style="text-align:left">A small RGVH allocation lifts a SPY portfolio's Sharpe</td></tr>
+            <tr><td>Tax efficiency</td><td>SPY (LT cap&#8209;gains)</td><td class="num" style="text-align:left">Short&#8209;vol generates short&#8209;term gains taxed at ordinary rates</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subhead reveal delay-2">Why the absolute&#8209;dollar gap looks "huge" at first glance</h3>
+
+      <p class="body reveal delay-2">
+        SPY (rescaled, blue line) ends much higher than RGVH (navy) when both are scaled to the same Reg&#8209;T capital. That's not a bug &mdash; it's the structural difference between the two strategies:
+      </p>
+
+      <ul class="body reveal delay-2">
+        <li><strong>SPY buy&#8209;and&#8209;hold</strong> deploys 100% of capital up front, so its return is naturally expressed as a percentage of that capital.</li>
+        <li><strong>RGVH short straddles</strong> receive premium up front; what you actually post is broker margin (~20% of underlying for Reg&#8209;T, ~6% for PM).</li>
+      </ul>
+
+      <p class="body reveal delay-2">
+        For the same $1,000 vega&#8209;target trade book, peak concurrent capital is <strong>$17,488 on Reg&#8209;T</strong> vs <strong>$5,246 on Portfolio Margin</strong>. The dollar P&amp;L stream is identical in both cases &mdash; only the denominator changes.
+      </p>
+
+      <figure class="figure reveal delay-2">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/15_dollar_comparison.png" alt="Dollar comparison across capital bases" loading="lazy"/>
+        <figcaption><strong>Fig. 3</strong> &middot; Same RGVH P&amp;L stream looks materially different relative to SPY depending on the margin tier.</figcaption>
+      </figure>
+
+      <p class="body reveal delay-2">
+        <strong>On Sharpe (risk&#8209;adjusted), RGVH wins regardless</strong> &mdash; that's the comparison that matters for a portfolio overlay.
+      </p>
+    </div>
+  </section>
+
+  <!-- THE THREE FILTERS -->
+  <section class="block">
+    <div class="container">
+      <div class="section-eyebrow reveal">03 &middot; Methodology</div>
+      <h2 class="section-title reveal delay-1">The three filters.</h2>
+
+      <p class="body reveal delay-1">
+        The strategy goes short an ATM 22&#8209;DTE SPY straddle every trading day <strong>unless any of these are true</strong> (in which case, sit out):
+      </p>
+
+      <div class="filter-grid reveal delay-2">
+        <div class="filter-card">
+          <div class="filter-num">FILTER 01</div>
+          <h3>SPY IV percentile</h3>
+          <code class="filter-rule">iv_rank &gt; IV_THR</code>
+          <p>SPY's 30&#8209;day IV is in the upper portion of its trailing&#8209;252&#8209;day range. Vol is already elevated &mdash; the market is signalling stress.</p>
+        </div>
+        <div class="filter-card">
+          <div class="filter-num">FILTER 02</div>
+          <h3>Cross&#8209;asset stress</h3>
+          <code class="filter-rule">vxn_excess_rank &gt; VXN_THR</code>
+          <p>VXN (Nasdaq vol) is pulling away from VIX (broad&#8209;market vol). Tech&#8209;led stress is a leading indicator that the calm broad&#8209;market regime is reverting.</p>
+        </div>
+        <div class="filter-card">
+          <div class="filter-num">FILTER 03</div>
+          <h3>Yield&#8209;curve inversion</h3>
+          <code class="filter-rule">2s10s_curve_rank &lt; SLOPE_THR</code>
+          <p>The 2y&#8209;vs&#8209;10y Treasury yield&#8209;curve slope is in the bottom of its trailing range &mdash; curve inverted or near&#8209;inverted (Estrella &amp; Mishkin 1996 recession signal).</p>
+        </div>
+      </div>
+
+      <div class="callout reveal delay-2">
+        <div class="callout-tag">Threshold values redacted</div>
+        <p>
+          The methodology is fully documented; readers replicating on their own data will arrive at their own optimum. Our backtest finds a <strong>robust plateau of acceptable thresholds</strong> (Sharpe &gt; 3.0 across ~half the threshold range), so the result is <strong>not knife&#8209;edge fragile</strong>.
+        </p>
+      </div>
+
+      <figure class="figure reveal delay-2">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/09_regime_overlay_pro.png" alt="Regime overlay" loading="lazy"/>
+        <figcaption><strong>Fig. 4</strong> &middot; SPY price with each filter's active region overlaid. The yield&#8209;curve filter (blue) cleanly captures the entire 2022 rate&#8209;hike regime that destroyed unfiltered short&#8209;vol books.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- PERFORMANCE -->
+  <section class="block">
+    <div class="container">
+      <div class="section-eyebrow reveal">04 &middot; Performance</div>
+      <h2 class="section-title reveal delay-1">Sharpe progression.</h2>
+
+      <p class="body reveal delay-1">
+        The strategy was built incrementally &mdash; each filter is a single Sharpe step.
+      </p>
+
+      <figure class="figure reveal delay-1">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/08_filter_attribution.png" alt="Filter attribution waterfall" loading="lazy"/>
+        <figcaption><strong>Fig. 5</strong> &middot; Sharpe lift waterfall across iterations: from unfiltered VRP harvest (0.48) to full three&#8209;filter RGVH (3.38). Skip&#8209;day composition shows the share each filter independently flags.</figcaption>
+      </figure>
+
+      <h3 class="subhead reveal">Cumulative equity curve</h3>
+
+      <figure class="figure reveal">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/02_equity_curve_pro.png" alt="Cumulative equity curve" loading="lazy"/>
+        <figcaption><strong>Fig. 6</strong> &middot; Cumulative net P&amp;L per $1,000 of vega exposure across four strategy variants, with crisis events marked.</figcaption>
+      </figure>
+
+      <h3 class="subhead reveal">$100k starting capital &mdash; live animation</h3>
+
+      <p class="body reveal">
+        Same starting capital deployed in each strategy, returns compounded both sides.
+      </p>
+
+      <figure class="figure reveal">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/100k_three_strategies.gif" alt="$100k starting capital across three strategies (animated)" loading="lazy"/>
+        <figcaption><strong>Fig. 7</strong> &middot; $100k after 12.15 years &middot; SPY &rarr; $491k &middot; RGVH on Reg&#8209;T &rarr; $200k &middot; <strong>RGVH on Portfolio Margin &rarr; $1.00M</strong> (10&times; money).</figcaption>
+      </figure>
+
+      <h3 class="subhead reveal">Calendar&#8209;year breakdown</h3>
+
+      <p class="body reveal">
+        <strong>Nine winning years, four losing</strong>, with the worst losing year limited to a slow grind (2024) rather than a crash. The 2022 rate&#8209;hike regime &mdash; which destroyed the unfiltered baseline (&minus;$3,697) &mdash; is held to break&#8209;even because the curve&#8209;inversion filter suppressed nearly all trades that year.
+      </p>
+
+      <figure class="figure reveal">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/13_yearly_table.png" alt="Yearly performance table" loading="lazy"/>
+        <figcaption><strong>Fig. 8</strong> &middot; Calendar&#8209;year performance for RGVH and SPY (rescaled). 2013 and 2025 are partial years.</figcaption>
+      </figure>
+
+      <h3 class="subhead reveal">Monthly heatmap</h3>
+
+      <figure class="figure reveal">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/04_monthly_heatmap.png" alt="Monthly P&L heatmap" loading="lazy"/>
+        <figcaption><strong>Fig. 9</strong> &middot; Monthly P&amp;L heatmaps for RGVH (top) and SPY total return (bottom). RGVH: many small&#8209;to&#8209;moderate positive months with rare moderate negatives.</figcaption>
+      </figure>
+
+      <h3 class="subhead reveal">Rolling Sharpe vs SPY</h3>
+
+      <figure class="figure reveal">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/05_rolling_sharpe.png" alt="Rolling 252-day Sharpe" loading="lazy"/>
+        <figcaption><strong>Fig. 10</strong> &middot; Rolling 252&#8209;day Sharpe ratio. RGVH (navy) consistently above 2 across most of the sample.</figcaption>
+      </figure>
+
+      <h3 class="subhead reveal">Drawdown profile</h3>
+
+      <figure class="figure reveal">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/06_drawdown_compare.png" alt="Drawdown comparison" loading="lazy"/>
+        <figcaption><strong>Fig. 11</strong> &middot; Underwater drawdown in percentage&#8209;of&#8209;peak terms. RGVH's worst drawdown is materially smaller than SPY's, with much faster recovery.</figcaption>
+      </figure>
+
+      <h3 class="subhead reveal">Performance summary table</h3>
+
+      <figure class="figure reveal">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/12_performance_table.png" alt="Performance summary table" loading="lazy"/>
+        <figcaption><strong>Fig. 12</strong> &middot; Performance summary statistics for RGVH and three benchmarks. Sample: 2013-07-05 to 2025-08-28 (12.15 years).</figcaption>
+      </figure>
+
+      <h3 class="subhead reveal">Top drawdown periods</h3>
+
+      <figure class="figure reveal">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/14_drawdown_periods_table.png" alt="Top drawdown periods" loading="lazy"/>
+        <figcaption><strong>Fig. 13</strong> &middot; Top&#8209;5 RGVH drawdown periods sorted by depth. None exceed &minus;$1,500 per $1,000 of vega exposure.</figcaption>
+      </figure>
+
+      <h3 class="subhead reveal">Per&#8209;trade outcome distribution</h3>
+
+      <figure class="figure reveal">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/07_return_distribution.png" alt="Return distribution" loading="lazy"/>
+        <figcaption><strong>Fig. 14</strong> &middot; Trade P&amp;L distribution: many small theta&#8209;collection wins, occasional larger losses. Hit rate 68.3%, monthly Pearson correlation with SPY &approx; 0.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ROBUSTNESS -->
+  <section class="block">
+    <div class="container">
+      <div class="section-eyebrow reveal">05 &middot; Robustness</div>
+      <h2 class="section-title reveal delay-1">Threshold sensitivity &amp; OOS holdout.</h2>
+
+      <h3 class="subhead reveal delay-1">Threshold sensitivity</h3>
+
+      <figure class="figure reveal delay-1">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/10_threshold_sensitivity.png" alt="Threshold sensitivity sweep" loading="lazy"/>
+        <figcaption><strong>Fig. 15</strong> &middot; RGVH net Sharpe vs 2s10s rank threshold. Sharpe stays above 3.0 across a wide plateau (~0.05&ndash;0.30), arguing that the curve&#8209;inversion filter is a robust signal rather than a fitted point.</figcaption>
+      </figure>
+
+      <h3 class="subhead reveal">Out&#8209;of&#8209;sample holdout</h3>
+
+      <figure class="figure reveal">
+        <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/11_oos_holdout.png" alt="OOS holdout splits" loading="lazy"/>
+        <figcaption><strong>Fig. 16</strong> &middot; Two splits, threshold chosen blindly on train and applied unchanged to test.</figcaption>
+      </figure>
+
+      <ul class="body reveal">
+        <li><strong>Split A</strong> (Train 2013&#8209;2020 / Test 2021&#8209;2025): the harder test &mdash; 2022 inversion regime is in the test set. Train Sharpe <strong>3.41</strong> &rarr; test Sharpe <strong>3.25</strong> (degradation only &minus;0.16). The filter, calibrated <em>blind</em> to 2022, correctly handled 2022 OOS.</li>
+        <li><strong>Split B</strong> (Train 2013&#8209;2022 / Test 2023&#8209;2025): gentler. Train <strong>3.69</strong> &rarr; test <strong>2.67</strong> (still 5&times; the unfiltered baseline; depressed by the 2024 grind regime).</li>
+      </ul>
+
+      <p class="body reveal">
+        Cross&#8209;asset diversification with QQQ <strong>fails</strong>: daily P&amp;L correlation 0.76, almost no diversification benefit. Real diversification needs bond&#8209;vol (TLT options) which our dataset doesn't include.
+      </p>
+    </div>
+  </section>
+
+  <!-- DATA SOURCES -->
+  <section class="block">
+    <div class="container">
+      <div class="section-eyebrow reveal">06 &middot; Data</div>
+      <h2 class="section-title reveal delay-1">Sources.</h2>
+
+      <div class="table-wrap reveal delay-1">
+        <table class="data-table">
+          <thead>
+            <tr><th>Dataset</th><th>Used for</th><th>Source</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>SPY EOD options chains 2005&#8209;2025</td><td>Backtest pricing, surface&#8209;derived signals</td><td>WRDS / OptionMetrics IvyDB <em>(licensed; not redistributed)</em></td></tr>
+            <tr><td>SPY underlying daily</td><td>Spot/return series</td><td>Same WRDS file + <code>yfinance</code> for SPY total return</td></tr>
+            <tr><td>MOVE bond&#8209;vol index</td><td>Macro stress proxy</td><td>Yahoo Finance (<code>^MOVE</code>) &mdash; free</td></tr>
+            <tr><td>VIX, VXN</td><td>Cross&#8209;asset vol regime</td><td>Yahoo Finance &mdash; free</td></tr>
+            <tr><td>2y, 10y Treasury yields</td><td>Yield&#8209;curve regime</td><td>FRED <code>DGS2</code>, <code>DGS10</code> &mdash; free</td></tr>
+            <tr><td>3&#8209;month T&#8209;bill</td><td>Risk&#8209;free rate for IV back&#8209;out</td><td>FRED <code>DGS3MO</code> &mdash; free</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT IT GETS WRONG -->
+  <section class="block">
+    <div class="container">
+      <div class="section-eyebrow reveal">07 &middot; Limitations</div>
+      <h2 class="section-title reveal delay-1">What the strategy gets wrong.</h2>
+
+      <ul class="body reveal delay-1">
+        <li><strong>2024 still loses (&minus;$828)</strong>: a slow&#8209;grind tightening regime that 2s10s alone doesn't catch. The curve uninverted before realised vol normalised.</li>
+        <li><strong>64% skip rate is high.</strong> Only ~90 trades/year. For absolute returns to be material, per&#8209;trade vega&#8209;$ exposure must be sized accordingly.</li>
+        <li><strong>Single losing day defines max DD across thresholds.</strong> We can't filter that day out without seeing it. A formal tail hedge (long 10&Delta; put) would cap it but cost ~10&ndash;15% of P&amp;L.</li>
+        <li><strong>In&#8209;sample selection of filters.</strong> The 2s10s filter was added knowing 2022 had been the worst losing year. The plateau and OOS holdout argue against it being curve&#8209;fit, but it's not zero risk.</li>
+        <li><strong>Equity&#8209;vol concentration.</strong> Adding QQQ as a second book gave daily P&amp;L correlation 0.76 &mdash; almost no diversification. Real diversification needs bond&#8209;vol.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FUTURE WORK -->
+  <section class="block">
+    <div class="container">
+      <div class="section-eyebrow reveal">08 &middot; Future work</div>
+      <h2 class="section-title reveal delay-1">What's next.</h2>
+
+      <ol class="body reveal delay-1">
+        <li><strong>TLT bond&#8209;vol harvest</strong> as a second book &rarr; genuine diversification (correlation likely 0.2&ndash;0.4)</li>
+        <li><strong>An ML crash&#8209;classifier</strong> (binary task) added on top of the filter rule, only used to gate trades when it fires high&#8209;confidence</li>
+        <li><strong>Position&#8209;sizing optimisation</strong>: Kelly&#8209;fraction sizing conditioned on regime</li>
+        <li><strong>Long 10&Delta; tail hedge</strong> layered on for production deployment</li>
+        <li><strong>Live paper&#8209;trading</strong> at IB / Tradier for 60&ndash;90 days before any capital commitment</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="block">
+    <div class="container">
+      <div class="callout reveal">
+        <div class="callout-tag">Read more</div>
+        <p>
+          The full <strong>16&#8209;page research paper</strong> covers the methodology in depth, including the 77&#8209;factor LightGBM ensemble that <em>failed</em> (information coefficient 0.55 but Sharpe &minus;0.65), the literature review on the variance risk premium, and detailed train/test holdout analysis.
+        </p>
+        <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-top:1.25rem;">
+          <a class="btn primary" href="https://github.com/Weculp/Trading-Strategies/blob/main/Options/RGVH-Regime-Gated-Vol-Harvester/PAPER.pdf" target="_blank" rel="noopener">
+            Download Paper (PDF)
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14M6 13l6 6 6-6M5 21h14"/></svg>
+          </a>
+          <a class="btn" href="https://github.com/Weculp/Trading-Strategies/tree/main/Options/RGVH-Regime-Gated-Vol-Harvester" target="_blank" rel="noopener">
+            Source Code
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </a>
+          <a class="btn" href="/strategies.html">
+            All Strategies
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <p class="body reveal" style="margin-top:2rem; font-size:0.85rem; color:var(--ink-subtle);">
+        License: MIT &mdash; free for any use with attribution. Not financial advice; do your own research.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>&copy; 2026 Vikalp Thukral</div>
+    <div>Built in Los Angeles &middot; Updated Apr 2026</div>
+    <div><a href="/">Home</a> &middot; <a href="/strategies.html">Strategies</a> &middot; <a href="mailto:admin@vikalpthukral.com">Email</a></div>
+  </div>
+</footer>
+
+<script>
+  /* Random accent color */
+  const PALETTE = [
+    { name:"teal",   dark:"#4fd1c5", light:"#0a7f8f", hover_d:"#6de2d7", hover_l:"#066675", soft_d:"rgba(79,209,197,0.1)",  soft_l:"rgba(10,127,143,0.08)"  },
+    { name:"blue",   dark:"#60a5fa", light:"#2563eb", hover_d:"#93c5fd", hover_l:"#1d4ed8", soft_d:"rgba(96,165,250,0.1)",  soft_l:"rgba(37,99,235,0.08)"   },
+    { name:"pink",   dark:"#f472b6", light:"#db2777", hover_d:"#f9a8d4", hover_l:"#be185d", soft_d:"rgba(244,114,182,0.1)", soft_l:"rgba(219,39,119,0.08)"  },
+    { name:"amber",  dark:"#fbbf24", light:"#b45309", hover_d:"#fcd34d", hover_l:"#92400e", soft_d:"rgba(251,191,36,0.1)",  soft_l:"rgba(180,83,9,0.08)"    },
+    { name:"lime",   dark:"#34d399", light:"#047857", hover_d:"#6ee7b7", hover_l:"#065f46", soft_d:"rgba(52,211,153,0.1)",  soft_l:"rgba(4,120,87,0.08)"    },
+    { name:"violet", dark:"#a78bfa", light:"#7c3aed", hover_d:"#c4b5fd", hover_l:"#6d28d9", soft_d:"rgba(167,139,250,0.1)", soft_l:"rgba(124,58,237,0.08)"  },
+  ];
+
+  function pickAccent() {
+    let idx = sessionStorage.getItem("accent-idx");
+    if (idx === null) { idx = Math.floor(Math.random() * PALETTE.length); sessionStorage.setItem("accent-idx", idx); }
+    return PALETTE[idx];
+  }
+
+  function applyAccent() {
+    const c = pickAccent();
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    document.documentElement.style.setProperty("--accent",       isDark ? c.dark : c.light);
+    document.documentElement.style.setProperty("--accent-hover",  isDark ? c.hover_d : c.hover_l);
+    document.documentElement.style.setProperty("--accent-soft",   isDark ? c.soft_d : c.soft_l);
+  }
+
+  (function () {
+    const root = document.documentElement;
+    const stored = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    root.setAttribute("data-theme", stored || (prefersDark ? "dark" : "light"));
+    applyAccent();
+
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+      applyAccent();
+    });
+  })();
+
+  (function () {
+    const header = document.getElementById("siteHeader");
+    const onScroll = () => header.classList.toggle("scrolled", window.scrollY > 12);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function () {
+    const els = document.querySelectorAll(".reveal");
+    if (!("IntersectionObserver" in window)) { els.forEach(el => el.classList.add("in")); return; }
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }),
+      { threshold: 0.08, rootMargin: "0px 0px -5% 0px" }
+    );
+    els.forEach(el => io.observe(el));
+  })();
+</script>
+
+</body>
+</html>

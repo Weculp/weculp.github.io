@@ -582,6 +582,110 @@
   }
   .project-card:hover .project-arrow { color: var(--accent); gap: 0.7rem; }
 
+  /* ─── STRATEGIES TEASER ─── */
+  .strategies-tile {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    align-items: stretch;
+    border: 1px solid var(--rule-strong);
+    background: var(--bg-raised);
+    overflow: hidden;
+    transition: border-color 0.3s;
+    text-decoration: none;
+    color: inherit;
+  }
+  @media (min-width: 920px) {
+    .strategies-tile { grid-template-columns: 1.05fr 0.95fr; }
+  }
+  .strategies-tile:hover { border-color: var(--accent); }
+
+  .strategies-content {
+    padding: clamp(2rem, 4vw, 3.25rem);
+    display: flex; flex-direction: column;
+    gap: 1.25rem;
+    justify-content: center;
+  }
+  .strategies-tile .featured-tag {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .strategies-tile h3.s-title {
+    font-size: clamp(1.75rem, 3.2vw, 2.6rem);
+    font-weight: 700; letter-spacing: -0.03em; line-height: 1.05;
+  }
+  .strategies-tile .s-desc {
+    font-size: 1rem; color: var(--ink-muted);
+    line-height: 1.7; max-width: 48ch;
+  }
+  .s-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 1.25rem 1.5rem;
+    margin-top: 0.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+  .s-stat .s-stat-label {
+    font-family: var(--font-mono); font-size: 0.65rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-subtle); display: block; margin-bottom: 0.35rem;
+  }
+  .s-stat .s-stat-val {
+    font-family: var(--font-display); font-size: 1.45rem;
+    font-weight: 700; color: var(--ink); letter-spacing: -0.02em;
+  }
+  .s-stat .s-stat-val.accent { color: var(--accent); }
+
+  .strategies-tile .strategies-arrow {
+    margin-top: 0.5rem;
+    font-family: var(--font-mono); font-size: 0.78rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink); display: inline-flex; align-items: center; gap: 0.5rem;
+    transition: gap 0.3s, color 0.25s;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 3px;
+    align-self: flex-start;
+  }
+  .strategies-tile:hover .strategies-arrow {
+    color: var(--accent); border-color: var(--accent); gap: 0.8rem;
+  }
+
+  .strategies-visual {
+    position: relative;
+    aspect-ratio: 16 / 11;
+    overflow: hidden;
+    background: var(--bg);
+    border-top: 1px solid var(--rule);
+  }
+  @media (min-width: 920px) {
+    .strategies-visual { aspect-ratio: auto; border-top: none; border-left: 1px solid var(--rule); }
+  }
+  .strategies-visual img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .strategies-tile:hover .strategies-visual img { transform: scale(1.025); }
+  .strategies-visual::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.12) 100%);
+    pointer-events: none;
+  }
+  [data-theme="dark"] .strategies-visual::after {
+    background: linear-gradient(135deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.35) 100%);
+  }
+  .strategies-overlay-tag {
+    position: absolute; top: 0.85rem; left: 0.85rem;
+    font-family: var(--font-mono); font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent);
+    background: var(--bg);
+    padding: 0.4rem 0.65rem;
+    border: 1px solid var(--accent);
+    z-index: 2;
+  }
+
   /* ─── EXPERIENCE ─── */
   .xp-grid {
     display: grid;
@@ -856,6 +960,7 @@
       <a href="#about">About</a>
       <a href="#featured">Work</a>
       <a href="projects.html">Projects</a>
+      <a href="strategies.html">Strategies</a>
       <a href="#experience">Experience</a>
       <a href="#contact">Contact</a>
     </nav>
@@ -1342,10 +1447,50 @@
     </div>
   </section>
 
-  <!-- ── 04 EXPERIENCE ── -->
+  <!-- ── 04 STRATEGIES ── -->
+  <section id="strategies-teaser">
+    <div class="container">
+      <div class="section-label reveal">04 — Strategies</div>
+
+      <a class="strategies-tile reveal delay-1" href="strategies.html">
+        <div class="strategies-content">
+          <span class="featured-tag">Backtested · Walk-Forward OOS</span>
+          <h3 class="s-title">Trading strategies with full research papers.</h3>
+          <p class="s-desc">
+            Systematic strategies backtested across 12+ years of data with strict walk&#8209;forward out&#8209;of&#8209;sample validation. Currently featuring <strong>RGVH</strong> &mdash; a regime&#8209;gated short&#8209;volatility harvester on SPY options netting Sharpe 3.38 across 2013&ndash;2025.
+          </p>
+          <div class="s-stats">
+            <div class="s-stat">
+              <span class="s-stat-label">Net Sharpe</span>
+              <span class="s-stat-val accent">3.38</span>
+            </div>
+            <div class="s-stat">
+              <span class="s-stat-label">CAGR (PM)</span>
+              <span class="s-stat-val">20.1%</span>
+            </div>
+            <div class="s-stat">
+              <span class="s-stat-label">Max DD</span>
+              <span class="s-stat-val">&minus;7.8%</span>
+            </div>
+            <div class="s-stat">
+              <span class="s-stat-label">OOS window</span>
+              <span class="s-stat-val">12.15y</span>
+            </div>
+          </div>
+          <span class="strategies-arrow">Explore Strategies &#8594;</span>
+        </div>
+        <div class="strategies-visual">
+          <span class="strategies-overlay-tag">RGVH &middot; Live</span>
+          <img src="https://raw.githubusercontent.com/Weculp/Trading-Strategies/main/Options/RGVH-Regime-Gated-Vol-Harvester/plots/pro/02_equity_curve_pro.png" alt="RGVH equity curve" loading="lazy"/>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── 05 EXPERIENCE ── -->
   <section id="experience">
     <div class="container">
-      <div class="section-label reveal">04 — Experience</div>
+      <div class="section-label reveal">05 — Experience</div>
       <div class="xp-grid">
         <h2 class="xp-heading reveal delay-1">Six years across data, product, and research.</h2>
         <div class="xp-list reveal delay-2">
@@ -1383,10 +1528,10 @@
     </div>
   </section>
 
-  <!-- ── 05 CONTACT ── -->
+  <!-- ── 06 CONTACT ── -->
   <section id="contact">
     <div class="container">
-      <div class="section-label reveal">05 — Contact</div>
+      <div class="section-label reveal">06 — Contact</div>
       <div class="contact-body reveal delay-1">
         <h2>Let's talk<br>about markets.</h2>
         <p>Open to full&#8209;time quantitative research and trading roles starting early 2026. Always happy to chat about derivatives pricing, volatility modelling, or anything that lives at the edge of code and markets.</p>
