@@ -2964,27 +2964,46 @@ function syncMyMarkFromRoom() {
 }
 
 async function leaveRoom() {
+  // Capture leaver state BEFORE we tear it down — we need it for the forfeit write.
+  const wasOnline = state.mode === "online";
+  const wasCode = state.roomCode;
+  const myLeavingMark = state.myMark;
+  const oppMarkAtLeave = state.oppMark;
+  const rd = state.roomData;
+
   // tear down listeners
   state.unsubscribers.forEach(fn => { try { fn(); } catch {} });
   state.unsubscribers = [];
-  if (state.mode === "online" && state.roomCode && state.myMark) {
+
+  if (wasOnline && wasCode && myLeavingMark) {
     try {
-      // Cancel the onDisconnect handler (we're leaving deliberately, so we don't want it
-      // to fire and write a stale present:false during the next user's session)
-      try { await dbOnDisconnect(roomRef(`players/${state.myMark}/present`)).cancel(); } catch {}
+      // Cancel the onDisconnect handler so it doesn't fire stale writes.
+      try { await dbOnDisconnect(roomRef(`players/${myLeavingMark}/present`)).cancel(); } catch {}
 
-      // Clear our slot entirely (not just present:false) so the room can be rejoined cleanly.
-      await dbSet(roomRef(`players/${state.myMark}`), null);
+      // If there's an active game and an opponent is still present, declare them the
+      // winner by forfeit BEFORE we wipe ourselves — they should know we bailed and the
+      // room can be sensibly closed/displayed for them.
+      const oppStillPresent = rd && rd.players && rd.players[oppMarkAtLeave]
+                              && rd.players[oppMarkAtLeave].present === true;
+      const gameInProgress = rd && (rd.state === "playing" || rd.state === "waiting");
 
-      // If the other slot is empty or its player is no longer present, delete the room entirely.
-      const snap = await dbGet(roomRef());
-      if (snap.exists()) {
-        const d = snap.val();
-        const remainingPresent = d.players && Object.values(d.players)
-          .filter(v => v && v.present === true);
-        if (!remainingPresent || remainingPresent.length === 0) {
-          await dbRemove(roomRef());
-        }
+      if (gameInProgress && oppStillPresent && rd.state === "playing") {
+        // give the opponent the win (they didn't ask for it, but the leaver forfeited)
+        const newScores = { ...(rd.scores || { X: 0, O: 0 }) };
+        newScores[oppMarkAtLeave] = (newScores[oppMarkAtLeave] || 0) + 1;
+        await dbUpdate(roomRef(), {
+          state: "won",
+          winner: oppMarkAtLeave,
+          winLine: null,
+          scores: newScores,
+          forfeit: true,
+          forfeitReason: "leave"
+        });
+        // Then nuke the whole room so the leaver can't rejoin and exploit a banner.
+        await dbRemove(roomRef());
+      } else {
+        // No game in progress (waiting room, or opponent already absent) — just delete the room.
+        await dbRemove(roomRef());
       }
     } catch (e) { console.warn("leaveRoom cleanup error", e); }
   }
