@@ -800,6 +800,63 @@
 
   .hidden { display: none !important; }
 
+  /* Disconnect banner — appears when opponent's connection drops mid-game */
+  .disconnect-banner {
+    position: fixed; top: 70px; left: 0; right: 0; z-index: 95;
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+    padding: 0.7rem var(--gutter);
+    font-family: var(--font-mono); font-size: 0.82rem;
+    text-align: center;
+    box-shadow: 0 4px 14px -4px rgba(0,0,0,0.25);
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .disconnect-banner strong { font-weight: 700; }
+  .disconnect-banner .dc-count {
+    font-family: var(--font-pixel);
+    font-size: 0.85rem;
+    padding: 2px 8px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 6px;
+  }
+  .disconnect-banner button {
+    background: #fff;
+    color: #b91c1c;
+    border: none;
+    padding: 0.4rem 0.9rem;
+    border-radius: 8px;
+    font-family: var(--font-mono); font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .disconnect-banner button:hover { transform: translateY(-1px); }
+  body.has-disconnect-banner main { padding-top: 122px; }
+  body.has-disconnect-banner.has-dev-banner main { padding-top: 172px; }
+  body.has-disconnect-banner .disconnect-banner { top: 70px; }
+  body.has-disconnect-banner.has-dev-banner .disconnect-banner { top: 122px; }
+
+  /* Move timer chip inside the turn indicator pill */
+  .move-timer {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    margin-left: 0.6rem;
+    padding: 2px 8px;
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 999px;
+    font-family: var(--font-pixel);
+    font-size: 0.62rem;
+    letter-spacing: 0;
+  }
+  .move-timer.warn { background: #b91c1c; color: #fff; animation: timer-pulse 0.9s ease-in-out infinite; }
+  @keyframes timer-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.08); }
+  }
+
   /* Firebase config warning banner (visible in dev mode) */
   .dev-banner {
     position: fixed; top: 70px; left: 0; right: 0; z-index: 90;
@@ -1451,6 +1508,12 @@
     </button>
   </div>
 </header>
+
+<!-- disconnect banner (only visible mid-game when opponent drops) -->
+<div class="disconnect-banner hidden" id="disconnectBanner">
+  <span><strong>Opponent disconnected.</strong> They have <span class="dc-count" id="dcCountdown">30</span>s to reconnect or you win by forfeit.</span>
+  <button id="claimForfeitBtn">Claim win now</button>
+</div>
 
 <!-- dev banner (only when Firebase isn't configured) -->
 <div class="dev-banner hidden" id="devBanner">
@@ -2128,7 +2191,9 @@ const state = {
   lastLocalMoves: [],                // local-mode move history
   // local hot-seat per-player state (set when entering local mode)
   localPlayers: { X: null, O: null }, // each: {nickname, avatar, playerId}
-  localScores:  { X: 0, O: 0 }        // current X-mark holder's wins, current O-mark holder's wins
+  localScores:  { X: 0, O: 0 },       // current X-mark holder's wins, current O-mark holder's wins
+  moveTimerInterval: null,            // ID of the 1-sec tick for the per-turn timer
+  disconnectInterval: null            // ID of the 1-sec tick for the disconnect banner countdown
 };
 window.__game = state; // for debugging
 
@@ -2438,10 +2503,14 @@ async function onCellClick(idx) {
       state.localScores[w.winner] = (state.localScores[w.winner] || 0) + 1;
       drawWinLineIfAny();
       updateHud();
+      stopMoveTimer();
       setTimeout(() => {
         audio.win();
         showGameOverLocal(w.winner);
       }, 400);
+    } else {
+      // reset the per-turn clock for the next mover
+      startMoveTimer();
     }
   }
 }
@@ -2663,13 +2732,61 @@ async function joinOnlineRoom(rawCode) {
   if (!snap.exists()) { alert("No room with that code. Double-check or ask for a fresh code."); return; }
   const data = snap.val();
 
-  // figure out which slot is empty
-  const hasX = !!(data.players && data.players.X);
-  const hasO = !!(data.players && data.players.O);
-  if (hasX && hasO) { alert("That room is already full."); return; }
+  // Count how many slots are actually held by a *present* player.
+  // A slot with present:false (closed tab, left) is treated as reclaimable.
+  const xSlot = data.players && data.players.X;
+  const oSlot = data.players && data.players.O;
+  const xPresent = !!(xSlot && xSlot.present);
+  const oPresent = !!(oSlot && oSlot.present);
+
+  // Already in this room? (e.g. shared a link with yourself) — just resume.
+  if (xSlot && xSlot.uid === state.fbUid) {
+    state.roomCode = code;
+    state.myMark = "X"; state.oppMark = "O"; state.mode = "online"; state.isHost = !!data.meta && data.meta.hostUid === state.fbUid;
+    await dbUpdate(roomRef(`players/X`), { present: true });
+    dbOnDisconnect(roomRef(`players/X/present`)).set(false);
+    subscribeToRoom(); closeAllModals(); setView("room"); pushUrl(code); return;
+  }
+  if (oSlot && oSlot.uid === state.fbUid) {
+    state.roomCode = code;
+    state.myMark = "O"; state.oppMark = "X"; state.mode = "online"; state.isHost = !!data.meta && data.meta.hostUid === state.fbUid;
+    await dbUpdate(roomRef(`players/O`), { present: true });
+    dbOnDisconnect(roomRef(`players/O/present`)).set(false);
+    subscribeToRoom(); closeAllModals(); setView("room"); pushUrl(code); return;
+  }
+
+  // Both slots filled with present players → genuinely full.
+  if (xPresent && oPresent) {
+    alert("That room is full — both players are connected. Ask for a new room code.");
+    return;
+  }
+
+  // Both slots stale (room was abandoned)? Delete it and create a fresh one with the same code if user wants.
+  // Simpler: just delete and tell user to ask for a new code (avoids race with original host coming back).
+  const occupiedSlotsCount = (xSlot ? 1 : 0) + (oSlot ? 1 : 0);
+  if (occupiedSlotsCount === 2 && !xPresent && !oPresent) {
+    await dbRemove(dbRef(rtdb, `rooms/${code}`));
+    alert("That room was abandoned (both players had disconnected). The room has been cleared — ask for a new code.");
+    return;
+  }
+  if (occupiedSlotsCount === 1 && !xPresent && !oPresent) {
+    // single slot, owner not present — also stale
+    await dbRemove(dbRef(rtdb, `rooms/${code}`));
+    alert("That room was abandoned — the host disconnected. The room has been cleared. Ask for a new code or create your own.");
+    return;
+  }
+
+  // Determine which slot to take: prefer truly empty slot, else the non-present slot.
+  let mySlot;
+  if (!xSlot)      mySlot = "X";
+  else if (!oSlot) mySlot = "O";
+  else if (!xPresent) mySlot = "X";   // X went stale, reclaim
+  else if (!oPresent) mySlot = "O";   // O went stale, reclaim
+  else { alert("Couldn't find an open slot."); return; }
+
   state.roomCode = code;
-  state.myMark = hasX ? "O" : "X";
-  state.oppMark = state.myMark === "X" ? "O" : "X";
+  state.myMark = mySlot;
+  state.oppMark = mySlot === "X" ? "O" : "X";
   state.isHost = false;
   state.mode = "online";
 
@@ -2681,7 +2798,12 @@ async function joinOnlineRoom(rawCode) {
     present: true,
     joinedAt: dbServerTimestamp()
   });
-  await dbUpdate(roomRef(), { state: "playing" });
+
+  // If both players are now present and the room state was "waiting", flip to "playing".
+  // (If the existing slot is the opposite mark and present, the game will start.)
+  if (data.state === "waiting") {
+    await dbUpdate(roomRef(), { state: "playing", startedAt: dbServerTimestamp() });
+  }
 
   dbOnDisconnect(roomRef(`players/${state.myMark}/present`)).set(false);
 
@@ -2726,13 +2848,14 @@ function onRoomUpdate(prev) {
   // re-derive my mark in case rematch swapped slots
   syncMyMarkFromRoom();
   // both players present? close waiting modal
-  if (data.players && data.players.X && data.players.O) {
+  if (data.players && data.players.X && data.players.O && data.players.X.present && data.players.O.present) {
     closeModal("waitingModal");
   }
   // game state transitions
   const wasWon = prev && prev.state === "won";
   const nowWon = data.state === "won";
   if (nowWon && !wasWon) {
+    stopMoveTimer();
     handleWinClient(data);
   }
   // opponent presence change
@@ -2750,6 +2873,10 @@ function onRoomUpdate(prev) {
 
   renderBoard();
   updateHud();
+
+  // (re)start the per-turn timer whenever we're in active play
+  if (data.state === "playing") startMoveTimer();
+  else stopMoveTimer();
 }
 
 async function pushMove(cellIdx, mark) {
@@ -2802,10 +2929,12 @@ async function requestRematch() {
     state.localScores  = { X: state.localScores.O || 0, O: state.localScores.X || 0 };
     state.lastLocalMoves = [];
     state._localWin = null;
+    state.localStartedAt = Date.now();
     boardEl.querySelectorAll(".win-line").forEach(n => n.remove());
     closeModal("gameoverModal");
     renderBoard();
     updateHud();
+    startMoveTimer();
     return;
   }
   // online — swap players + scores together (mark-swap on rematch)
@@ -2818,6 +2947,9 @@ async function requestRematch() {
     state: "playing",
     winner: null,
     winLine: null,
+    forfeit: null,
+    forfeitReason: null,
+    startedAt: dbServerTimestamp(),
     players: swappedPlayers,
     scores: swappedScores
   });
@@ -2837,17 +2969,24 @@ async function leaveRoom() {
   state.unsubscribers = [];
   if (state.mode === "online" && state.roomCode && state.myMark) {
     try {
-      await dbUpdate(roomRef(`players/${state.myMark}`), { present: false, leftAt: dbServerTimestamp() });
-      // if both players are gone, delete room
+      // Cancel the onDisconnect handler (we're leaving deliberately, so we don't want it
+      // to fire and write a stale present:false during the next user's session)
+      try { await dbOnDisconnect(roomRef(`players/${state.myMark}/present`)).cancel(); } catch {}
+
+      // Clear our slot entirely (not just present:false) so the room can be rejoined cleanly.
+      await dbSet(roomRef(`players/${state.myMark}`), null);
+
+      // If the other slot is empty or its player is no longer present, delete the room entirely.
       const snap = await dbGet(roomRef());
       if (snap.exists()) {
         const d = snap.val();
-        const others = d.players && Object.entries(d.players).filter(([k,v]) => v && v.present);
-        if (!others || others.length === 0) {
+        const remainingPresent = d.players && Object.values(d.players)
+          .filter(v => v && v.present === true);
+        if (!remainingPresent || remainingPresent.length === 0) {
           await dbRemove(roomRef());
         }
       }
-    } catch {}
+    } catch (e) { console.warn("leaveRoom cleanup error", e); }
   }
   state.roomCode = null;
   state.roomData = null;
@@ -2858,6 +2997,7 @@ async function leaveRoom() {
   state.lastLocalMoves = [];
   state.mode = "online";
   stopRematchTimer();
+  stopMoveTimer();
   clearDisconnectGrace();
   pushUrl(null);
   closeAllModals();
@@ -2872,19 +3012,129 @@ function handleRoomGone() {
   state.unsubscribers = [];
   state.roomCode = null;
   state.roomData = null;
+  stopMoveTimer();
+  clearDisconnectGrace();
   pushUrl(null);
   setView("landing");
   renderBoard();
   updateHud();
 }
 
-function startDisconnectGrace() {
-  if (state.disconnectTimeout) return;
-  state.disconnectTimeout = setTimeout(async () => {
-    // forfeit: declare me the winner
+const DISCONNECT_GRACE_SECONDS = 30;
+const MOVE_TIMEOUT_SECONDS = 60;
+
+/* ───────── move timer (per-turn forfeit clock) ───────── */
+function getMoveDeadlineMs() {
+  const moves = currentMoves();
+  if (moves.length > 0) {
+    const lastTs = moves[moves.length - 1].ts || Date.now();
+    return lastTs + MOVE_TIMEOUT_SECONDS * 1000;
+  }
+  if (state.mode === "online") {
+    const startedAt = state.roomData?.startedAt || Date.now();
+    return startedAt + MOVE_TIMEOUT_SECONDS * 1000;
+  }
+  return (state.localStartedAt || Date.now()) + MOVE_TIMEOUT_SECONDS * 1000;
+}
+
+function startMoveTimer() {
+  stopMoveTimer();
+  if (!hasGameStarted()) return;
+  if (state.mode === "online" && state.roomData?.state !== "playing") return;
+  if (state.mode === "local" && state._localWin) return;
+  state.moveTimerInterval = setInterval(updateMoveTimerTick, 250);
+  updateMoveTimerTick();
+}
+
+function stopMoveTimer() {
+  if (state.moveTimerInterval) { clearInterval(state.moveTimerInterval); state.moveTimerInterval = null; }
+  const el = document.getElementById('moveTimerChip');
+  if (el) el.remove();
+}
+
+function updateMoveTimerTick() {
+  const deadline = getMoveDeadlineMs();
+  const remaining = deadline - Date.now();
+  const remSec = Math.max(0, Math.ceil(remaining / 1000));
+
+  const ti = $("turnIndicator");
+  if (!ti) return;
+  let chip = document.getElementById('moveTimerChip');
+  if (!chip) {
+    chip = document.createElement('span');
+    chip.id = 'moveTimerChip';
+    chip.className = 'move-timer';
+    ti.appendChild(chip);
+  }
+  const mins = Math.floor(remSec / 60);
+  const secs = remSec % 60;
+  chip.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+  chip.classList.toggle('warn', remSec <= 10);
+
+  if (remaining <= 0) handleMoveTimerExpired();
+}
+
+async function handleMoveTimerExpired() {
+  stopMoveTimer();
+  const moves = currentMoves();
+  const turn = whoseTurn(moves);
+  const winner = turn === "X" ? "O" : "X";
+
+  if (state.mode === "online") {
     if (!state.roomData || state.roomData.state !== "playing") return;
     const newScores = { ...(state.roomData.scores || {X:0,O:0}) };
-    newScores[state.myMark] = (newScores[state.myMark] || 0) + 1;
+    newScores[winner] = (newScores[winner] || 0) + 1;
+    try {
+      await dbUpdate(roomRef(), {
+        state: "won",
+        winner,
+        winLine: null,
+        scores: newScores,
+        forfeit: true,
+        forfeitReason: "timeout"
+      });
+    } catch (e) { console.warn("timeout-forfeit write failed", e); }
+  } else if (state.mode === "local") {
+    if (state._localWin) return;
+    state._localWin = { winner, line: null };
+    state.localScores[winner] = (state.localScores[winner] || 0) + 1;
+    audio.win();
+    showGameOverLocal(winner);
+    updateHud();
+  }
+}
+
+function startDisconnectGrace() {
+  if (state.disconnectTimeout) return;
+  if (!state.roomData || state.roomData.state !== "playing") return;
+  // show the banner
+  const banner = $("disconnectBanner");
+  const count = $("dcCountdown");
+  banner.classList.remove("hidden");
+  document.body.classList.add("has-disconnect-banner");
+  let remaining = DISCONNECT_GRACE_SECONDS;
+  count.textContent = remaining;
+  state.disconnectInterval = setInterval(() => {
+    remaining--;
+    count.textContent = Math.max(remaining, 0);
+    if (remaining <= 0) { clearInterval(state.disconnectInterval); state.disconnectInterval = null; }
+  }, 1000);
+  // hard timeout fires the forfeit
+  state.disconnectTimeout = setTimeout(() => {
+    claimForfeitWin();
+  }, DISCONNECT_GRACE_SECONDS * 1000);
+}
+function clearDisconnectGrace() {
+  if (state.disconnectTimeout) { clearTimeout(state.disconnectTimeout); state.disconnectTimeout = null; }
+  if (state.disconnectInterval) { clearInterval(state.disconnectInterval); state.disconnectInterval = null; }
+  $("disconnectBanner").classList.add("hidden");
+  document.body.classList.remove("has-disconnect-banner");
+}
+async function claimForfeitWin() {
+  if (!state.roomData || state.roomData.state !== "playing") { clearDisconnectGrace(); return; }
+  const newScores = { ...(state.roomData.scores || {X:0,O:0}) };
+  newScores[state.myMark] = (newScores[state.myMark] || 0) + 1;
+  try {
     await dbUpdate(roomRef(), {
       state: "won",
       winner: state.myMark,
@@ -2892,10 +3142,8 @@ function startDisconnectGrace() {
       scores: newScores,
       forfeit: true
     });
-  }, 30000);
-}
-function clearDisconnectGrace() {
-  if (state.disconnectTimeout) { clearTimeout(state.disconnectTimeout); state.disconnectTimeout = null; }
+  } catch (e) { console.warn("forfeit write failed", e); }
+  clearDisconnectGrace();
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -3150,10 +3398,12 @@ function enterLocalMode() {
   state.localScores  = { X: 0, O: 0 };
   state.lastLocalMoves = [];
   state._localWin = null;
+  state.localStartedAt = Date.now();
   closeModal("localSetupModal");
   setView("room");
   renderBoard();
   updateHud();
+  startMoveTimer();
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -3229,6 +3479,9 @@ function wireEvents() {
   // game over
   $("rematchBtn").addEventListener("click", () => { audio.click(); requestRematch(); });
   $("goLeaveBtn").addEventListener("click", () => { audio.click(); leaveRoom(); });
+
+  // claim forfeit from disconnect banner
+  $("claimForfeitBtn").addEventListener("click", () => { audio.click(); claimForfeitWin(); });
 
   // audio toggles
   reflectAudioPrefs();
