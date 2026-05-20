@@ -367,6 +367,7 @@
       <a href="/#about">About</a>
       <a href="projects.html" class="active">Projects</a>
       <a href="strategies.html">Strategies</a>
+      <a href="games.html">Games</a>
       <a href="/#experience">Experience</a>
       <a href="/#contact">Contact</a>
     </nav>
@@ -992,10 +993,118 @@
         </div>
       </div>
 
+      <!-- ─────────── 08  DoubleLine AFP — FinBERT Sentiment Pipeline ─────────── -->
+      <div class="catalog-item reveal">
+        <div class="catalog-content">
+          <span class="catalog-num">08 — Applied Finance Project · UCLA × DoubleLine</span>
+          <h2 class="catalog-title">FinBERT Sentiment Pipeline for Fed &amp; Macro Communications</h2>
+          <p class="catalog-desc">
+            Capstone Applied Finance Project for <strong>DoubleLine Capital</strong> (Sep&nbsp;–&nbsp;Dec 2025). Designed an NLP sentiment pipeline using <strong>FinBERT</strong> to extract systematic, machine&#8209;readable signals from Fed minutes, FOMC statements, and broader macro communications &mdash; generating quantitative features for credit and rates research. Built a Python ETL workflow that ingests, cleans, and tokenizes the unstructured text feed, scores each document on hawkish&nbsp;↔&nbsp;dovish axes, and packages the model outputs into reproducible datasets handed off to DoubleLine's quant research team.
+          </p>
+          <div class="catalog-tech">
+            <span class="tech-tag">FinBERT</span>
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">NLP</span>
+            <span class="tech-tag">Hugging Face</span>
+            <span class="tech-tag">ETL</span>
+            <span class="tech-tag">PyTorch</span>
+          </div>
+          <div class="catalog-links">
+            <span class="cat-link" style="opacity:0.7; cursor:default;">
+              Industry deliverable · not public
+            </span>
+          </div>
+        </div>
+        <div class="catalog-visual">
+          <div class="dot-pattern"></div>
+          <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="finbertDove" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.65"/>
+                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.1"/>
+              </linearGradient>
+            </defs>
+
+            <!-- left side: document stack -->
+            <g class="svg-anim-fade" style="--fade-delay:0.1s">
+              <rect x="30" y="60" width="58" height="76" rx="2" fill="var(--bg-raised)" stroke="var(--rule-strong)" stroke-width="1"/>
+              <line x1="38" y1="74" x2="80" y2="74" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="82" x2="80" y2="82" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="90" x2="74" y2="90" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="98" x2="80" y2="98" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="106" x2="70" y2="106" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="114" x2="78" y2="114" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="122" x2="64" y2="122" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <text x="59" y="148" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">FOMC</text>
+            </g>
+            <g class="svg-anim-fade" style="--fade-delay:0.3s">
+              <rect x="30" y="160" width="58" height="76" rx="2" fill="var(--bg-raised)" stroke="var(--rule-strong)" stroke-width="1"/>
+              <line x1="38" y1="174" x2="80" y2="174" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="182" x2="76" y2="182" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="190" x2="80" y2="190" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="198" x2="72" y2="198" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="206" x2="80" y2="206" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="214" x2="66" y2="214" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <line x1="38" y1="222" x2="78" y2="222" stroke="var(--ink-subtle)" stroke-width="0.8"/>
+              <text x="59" y="248" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">CPI</text>
+            </g>
+
+            <!-- arrow + FinBERT pill -->
+            <g class="svg-anim-fade" style="--fade-delay:0.5s">
+              <line x1="96" y1="150" x2="148" y2="150" stroke="var(--accent)" stroke-width="1.4"/>
+              <path d="M144 146 L152 150 L144 154 Z" fill="var(--accent)"/>
+              <rect x="152" y="135" width="76" height="30" rx="15" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.2"/>
+              <text x="190" y="154" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700" fill="var(--accent)" letter-spacing="0.05em">FinBERT</text>
+              <line x1="228" y1="150" x2="280" y2="150" stroke="var(--accent)" stroke-width="1.4"/>
+              <path d="M276 146 L284 150 L276 154 Z" fill="var(--accent)"/>
+            </g>
+
+            <!-- right side: sentiment timeline -->
+            <g class="svg-anim-fade" style="--fade-delay:0.7s">
+              <text x="295" y="48" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--ink-subtle)" letter-spacing="0.1em">SENTIMENT · 24M</text>
+              <line x1="295" y1="150" x2="455" y2="150" stroke="var(--rule-strong)" stroke-width="0.8" stroke-dasharray="3 3"/>
+              <text x="290" y="80" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">+1 dovish</text>
+              <text x="290" y="153" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">0</text>
+              <text x="290" y="226" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">-1 hawkish</text>
+
+              <!-- hawkish bars (red, growing down from 150) -->
+              <g fill="#ef444499">
+                <rect x="298" y="150" width="9" height="48"/>
+                <rect x="312" y="150" width="9" height="36"/>
+                <rect x="326" y="150" width="9" height="55"/>
+                <rect x="340" y="150" width="9" height="42"/>
+              </g>
+              <!-- dovish bars (accent/green, growing up from 150) -->
+              <g fill="url(#finbertDove)">
+                <rect x="354" y="142" width="9" height="8"/>
+                <rect x="368" y="130" width="9" height="20"/>
+                <rect x="382" y="118" width="9" height="32"/>
+                <rect x="396" y="105" width="9" height="45"/>
+                <rect x="410" y="115" width="9" height="35"/>
+                <rect x="424" y="100" width="9" height="50"/>
+                <rect x="438" y="92" width="9" height="58"/>
+              </g>
+
+              <!-- smoothed score line -->
+              <path class="svg-anim-draw" style="--path-len:200;--draw-dur:2s;--draw-delay:1s"
+                d="M302,180 L317,170 L331,200 L345,185 L359,148 L373,135 L387,120 L401,110 L415,118 L429,105 L442,100"
+                stroke="var(--accent)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+
+              <!-- pivot tick -->
+              <line class="svg-anim-fade" style="--fade-delay:1.5s" x1="354" y1="78" x2="354" y2="226" stroke="var(--ink-muted)" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.5"/>
+              <text class="svg-anim-fade" style="--fade-delay:1.6s" x="356" y="76" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-muted)">PIVOT</text>
+
+              <text x="298" y="240" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">2023</text>
+              <text x="442" y="240" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">2025</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
       <!-- ─────────── 08  Exotic Options / Stochastic Vol ─────────── -->
       <div class="catalog-item reveal">
         <div class="catalog-content">
-          <span class="catalog-num">08 — MGMTMFE 432 · Project 3</span>
+          <span class="catalog-num">09 — MGMTMFE 432 · Project 3</span>
           <h2 class="catalog-title">Exotic Derivatives &amp; Fixed Income Valuation</h2>
           <p class="catalog-desc">
             Capstone project implementing jump&#8209;diffusion default option pricing (Poisson jumps), down&#8209;and&#8209;out puts under Heston&#8209;type stochastic volatility, CIR and G2++ term&#8209;structure models for bond and swaption pricing, and mortgage&#8209;backed security valuation with the Numerix prepayment model (IO/PO tranches, OAS computation). All solvers built from scratch using full&#8209;truncation Monte Carlo and implicit finite&#8209;difference methods.
@@ -1065,7 +1174,7 @@
 <footer class="site-footer">
   <div class="footer-inner">
     <div>&copy; 2026 Vikalp Thukral</div>
-    <div>Built in Los Angeles &middot; Updated Apr 2026</div>
+    <div>Built in Los Angeles &middot; Updated May 2026</div>
     <div><a href="/">Home</a> &middot; <a href="https://github.com/WeCulp" target="_blank" rel="noopener">GitHub</a> &middot; <a href="mailto:admin@vikalpthukral.com">Email</a></div>
   </div>
 </footer>

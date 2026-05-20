@@ -1,0 +1,10 @@
+# Claude Code preview-server config (local dev only)
+.claude/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor scratch
+*.swp
+*~

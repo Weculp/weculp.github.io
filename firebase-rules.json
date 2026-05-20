@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "rooms": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && (!data.exists() || data.child('players/X/uid').val() === auth.uid || data.child('players/O/uid').val() === auth.uid || !data.child('players/X').exists() || !data.child('players/O').exists())",
+        "moves": {
+          "$pushId": {
+            ".validate": "newData.hasChildren(['uid','mark','cell','ts']) && newData.child('uid').val() === auth.uid && newData.child('cell').isNumber() && newData.child('cell').val() >= 0 && newData.child('cell').val() <= 8 && (newData.child('mark').val() === 'X' || newData.child('mark').val() === 'O') && data.parent().parent().child('players/X/uid').val() !== null && data.parent().parent().child('players/O/uid').val() !== null && (data.parent().parent().child('players/X/uid').val() === auth.uid || data.parent().parent().child('players/O/uid').val() === auth.uid)"
+          }
+        }
+      }
+    }
+  }
+}
