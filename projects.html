@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Projects — Vikalp Thukral</title>
-<meta name="description" content="Quantitative finance projects: volatility surfaces, risk management, risk dashboards, factor replication, computational methods, and stochastic modelling." />
+<meta name="description" content="Quantitative finance projects: volatility surfaces, wholesale credit risk modelling, risk management, risk dashboards, factor replication, computational methods, and stochastic modelling." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -736,10 +736,112 @@
         </div>
       </div>
 
-      <!-- ─────────── 05  Risk Management ─────────── -->
+      <!-- ─────────── 05  Wholesale Credit Risk Engine ─────────── -->
       <div class="catalog-item reveal">
         <div class="catalog-content">
-          <span class="catalog-num">05 — MGMTMFE 409 · Spring 2025</span>
+          <span class="catalog-num">05 — Credit Risk · Model Development &amp; Validation</span>
+          <h2 class="catalog-title">Wholesale Credit Risk Engine — PD, LGD &amp; Portfolio Loss</h2>
+          <p class="catalog-desc">
+            An end&#8209;to&#8209;end wholesale credit model built on a genuine <strong>low&#8209;default portfolio</strong> — 1.20% annualised, 692 defaults across 229,803 obligor&#8209;quarters. Monotone weight&#8209;of&#8209;evidence binning feeds a Firth&#8209;penalised logistic scorecard, validated <strong>out of time</strong> against a gradient&#8209;boosting challenger, with Jeffreys and Pluto&#8209;Tasche calibration for rating grades that contain zero observed defaults. A fractional&#8209;response GLM gives long&#8209;run and downturn LGD; CCF estimation gives EAD; and portfolio loss is projected under CCAR stress scenarios and a CECL lifetime expectation. Macro drivers are real FRED series; the obligor portfolio is synthetic and labelled as such throughout. Ships an auto&#8209;generated, versioned SR 11&#8209;7 model document.
+          </p>
+          <div class="catalog-tech">
+            <span class="tech-tag">scikit-learn</span>
+            <span class="tech-tag">statsmodels</span>
+            <span class="tech-tag">NumPy</span>
+            <span class="tech-tag">Firth logistic</span>
+            <span class="tech-tag">Vasicek</span>
+            <span class="tech-tag">FRED API</span>
+          </div>
+          <div class="catalog-links">
+            <a class="cat-link" href="/wholesale-credit-pd-model/" target="_blank" rel="noopener">
+              Full Write-up
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </a>
+            <a class="cat-link" href="https://github.com/Weculp/wholesale-credit-pd-model" target="_blank" rel="noopener">
+              Source Code
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="catalog-visual">
+          <div class="dot-pattern"></div>
+          <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="creditLossP" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.26"/>
+                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+
+            <!-- ── PD by rating grade ── -->
+            <text class="svg-anim-fade" style="--fade-delay:0.15s" x="40" y="30" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--ink-subtle)" letter-spacing="0.12em">PD BY RATING GRADE</text>
+            <line x1="40" y1="120" x2="440" y2="120" stroke="var(--rule)" stroke-width="0.5"/>
+            <g class="svg-anim-fade" style="--fade-delay:0.3s">
+              <rect x="44"  y="114" width="24" height="6"  fill="var(--accent)" opacity="0.20" rx="1"/>
+              <rect x="84"  y="111" width="24" height="9"  fill="var(--accent)" opacity="0.26" rx="1"/>
+              <rect x="124" y="107" width="24" height="13" fill="var(--accent)" opacity="0.32" rx="1"/>
+              <rect x="164" y="101" width="24" height="19" fill="var(--accent)" opacity="0.38" rx="1"/>
+              <rect x="204" y="93"  width="24" height="27" fill="var(--accent)" opacity="0.45" rx="1"/>
+              <rect x="244" y="83"  width="24" height="37" fill="var(--accent)" opacity="0.53" rx="1"/>
+              <rect x="284" y="70"  width="24" height="50" fill="var(--accent)" opacity="0.62" rx="1"/>
+              <rect x="324" y="56"  width="24" height="64" fill="var(--accent)" opacity="0.72" rx="1"/>
+              <rect x="364" y="44"  width="24" height="76" fill="var(--accent)" opacity="0.84" rx="1"/>
+              <rect x="404" y="36"  width="24" height="84" fill="var(--accent)" opacity="0.95" rx="1"/>
+            </g>
+            <!-- zero-default grade callout -->
+            <g class="svg-anim-fade" style="--fade-delay:1.1s">
+              <line class="svg-dash-flow" x1="56" y1="112" x2="56" y2="66" stroke="var(--accent)" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+              <rect x="34" y="48" width="94" height="17" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="0.5" rx="2"/>
+              <text x="81" y="60" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--accent)" letter-spacing="0.06em">0 DEFAULTS · PRIOR</text>
+            </g>
+            <text class="svg-anim-fade" style="--fade-delay:0.5s" x="44" y="134" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">G1</text>
+            <text class="svg-anim-fade" style="--fade-delay:0.5s" x="410" y="134" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">G10</text>
+
+            <!-- ── EL = PD x LGD x EAD ── -->
+            <text class="svg-anim-fade" style="--fade-delay:0.7s" x="40" y="160" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--ink-subtle)" letter-spacing="0.12em">EL = PD × LGD × EAD</text>
+
+            <g stroke="var(--rule)" stroke-width="0.3" opacity="0.5">
+              <line x1="40" y1="185" x2="440" y2="185"/>
+              <line x1="40" y1="220" x2="440" y2="220"/>
+              <line x1="40" y1="255" x2="440" y2="255"/>
+            </g>
+
+            <!-- severely adverse -->
+            <path class="svg-anim-draw" style="--path-len:520;--draw-dur:2s;--draw-delay:0.7s"
+              d="M50,262 Q100,250 145,215 Q190,176 235,172 Q285,178 330,208 Q380,238 440,252"
+              stroke="var(--accent)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <path class="svg-anim-fade" style="--fade-delay:1.6s"
+              d="M50,262 Q100,250 145,215 Q190,176 235,172 Q285,178 330,208 Q380,238 440,252 L440,272 L50,272 Z"
+              fill="url(#creditLossP)"/>
+            <!-- adverse -->
+            <path class="svg-anim-draw" style="--path-len:480;--draw-dur:2s;--draw-delay:0.9s"
+              d="M50,266 Q100,260 145,242 Q190,222 235,220 Q285,224 330,240 Q380,256 440,263"
+              stroke="var(--accent)" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.55"/>
+            <!-- baseline -->
+            <path class="svg-anim-draw" style="--path-len:420;--draw-dur:2s;--draw-delay:1.1s"
+              d="M50,269 Q145,267 235,265 Q330,264 440,263"
+              stroke="var(--ink-muted)" stroke-width="1.1" fill="none" stroke-linecap="round" opacity="0.5"/>
+
+            <circle class="svg-pulse-dot" cx="235" cy="172" r="3.5" fill="var(--accent)"/>
+
+            <g class="svg-anim-fade" style="--fade-delay:2s">
+              <text x="248" y="168" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--accent)" letter-spacing="0.06em">SEV. ADVERSE</text>
+              <text x="392" y="278" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">Q9</text>
+              <text x="46" y="278" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)">Q1</text>
+            </g>
+
+            <g class="svg-anim-fade" style="--fade-delay:2.2s">
+              <text x="330" y="30" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--accent)" letter-spacing="0.08em">LOW-DEFAULT BOOK</text>
+              <text x="330" y="42" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--ink-subtle)" letter-spacing="0.06em">1.20% ANNUAL DR</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- ─────────── 06  Risk Management ─────────── -->
+      <div class="catalog-item reveal">
+        <div class="catalog-content">
+          <span class="catalog-num">06 — MGMTMFE 409 · Spring 2025</span>
           <h2 class="catalog-title">Financial Risk Management</h2>
           <p class="catalog-desc">
             Eight projects covering the full risk management pipeline: Component VaR/CVaR decomposition, VaR backtesting through the 2008 crisis (Kupiec test), GARCH vs EWMA vs historical simulation comparison, Stulz multi&#8209;asset exotic&#8209;option Greeks, Basel III compliance deep&#8209;dives on Bank of America, CDS hazard&#8209;rate bootstrapping with piecewise constant lambdas, the LTCM collapse case study, and the Merton structural credit model (distance&#8209;to&#8209;default, recovery rate estimation).
@@ -810,10 +912,10 @@
         </div>
       </div>
 
-      <!-- ─────────── 06  QAM ─────────── -->
+      <!-- ─────────── 07  QAM ─────────── -->
       <div class="catalog-item reveal">
         <div class="catalog-content">
-          <span class="catalog-num">06 — MGMTMFE 431 · Spring 2025</span>
+          <span class="catalog-num">07 — MGMTMFE 431 · Spring 2025</span>
           <h2 class="catalog-title">Quantitative Asset Management</h2>
           <p class="catalog-desc">
             Five&#8209;project factor replication suite built on WRDS CRSP/Compustat data. Constructed market excess return (MKT&#8209;RF), risk&#8209;free rate, RMW (robust&#8209;minus&#8209;weak), CMA (conservative&#8209;minus&#8209;aggressive), size (SMB), value (HML), and momentum (WML) factors. Achieved &gt;0.99 correlation with published Kenneth French benchmarks. Final project: a <strong>Betting Against Correlation (BAC)</strong> factor isolating the correlation component of beta, demonstrating orthogonal alpha over 2010&#8209;2024.
@@ -923,10 +1025,10 @@
         </div>
       </div>
 
-      <!-- ─────────── 07  Advanced Computational Methods ─────────── -->
+      <!-- ─────────── 08  Advanced Computational Methods ─────────── -->
       <div class="catalog-item reveal">
         <div class="catalog-content">
-          <span class="catalog-num">07 — MGMTMFE 432 · Spring 2025</span>
+          <span class="catalog-num">08 — MGMTMFE 432 · Spring 2025</span>
           <h2 class="catalog-title">Advanced Computational Methods</h2>
           <p class="catalog-desc">
             Three projects covering the full spectrum of numerical option pricing: binomial and trinomial trees for American options with discrete dividends, variance&#8209;reduced Monte Carlo (control variates, antithetic variables) for Asian and lookback options, implicit/explicit/Crank&#8209;Nicolson PDE solvers for American puts, Vasicek and CIR term&#8209;structure models, and quadrature&#8209;based pricing. Also includes exotic barrier options with rebates and Richardson extrapolation.
@@ -993,10 +1095,10 @@
         </div>
       </div>
 
-      <!-- ─────────── 08  DoubleLine AFP — FinBERT Sentiment Pipeline ─────────── -->
+      <!-- ─────────── 09  DoubleLine AFP — FinBERT Sentiment Pipeline ─────────── -->
       <div class="catalog-item reveal">
         <div class="catalog-content">
-          <span class="catalog-num">08 — Applied Finance Project · UCLA × DoubleLine</span>
+          <span class="catalog-num">09 — Applied Finance Project · UCLA × DoubleLine</span>
           <h2 class="catalog-title">FinBERT Sentiment Pipeline for Fed &amp; Macro Communications</h2>
           <p class="catalog-desc">
             Capstone Applied Finance Project for <strong>DoubleLine Capital</strong> (Sep&nbsp;–&nbsp;Dec 2025). Designed an NLP sentiment pipeline using <strong>FinBERT</strong> to extract systematic, machine&#8209;readable signals from Fed minutes, FOMC statements, and broader macro communications &mdash; generating quantitative features for credit and rates research. Built a Python ETL workflow that ingests, cleans, and tokenizes the unstructured text feed, scores each document on hawkish&nbsp;↔&nbsp;dovish axes, and packages the model outputs into reproducible datasets handed off to DoubleLine's quant research team.
@@ -1101,10 +1203,10 @@
         </div>
       </div>
 
-      <!-- ─────────── 08  Exotic Options / Stochastic Vol ─────────── -->
+      <!-- ─────────── 10  Exotic Options / Stochastic Vol ─────────── -->
       <div class="catalog-item reveal">
         <div class="catalog-content">
-          <span class="catalog-num">09 — MGMTMFE 432 · Project 3</span>
+          <span class="catalog-num">10 — MGMTMFE 432 · Project 3</span>
           <h2 class="catalog-title">Exotic Derivatives &amp; Fixed Income Valuation</h2>
           <p class="catalog-desc">
             Capstone project implementing jump&#8209;diffusion default option pricing (Poisson jumps), down&#8209;and&#8209;out puts under Heston&#8209;type stochastic volatility, CIR and G2++ term&#8209;structure models for bond and swaption pricing, and mortgage&#8209;backed security valuation with the Numerix prepayment model (IO/PO tranches, OAS computation). All solvers built from scratch using full&#8209;truncation Monte Carlo and implicit finite&#8209;difference methods.
