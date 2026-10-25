@@ -12,6 +12,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
 
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    }
+  }
+</script>
+
 <script>
   // pick the side before first paint so the page never flashes the wrong colour
   try { const s = localStorage.getItem("onlinevpn-side"); if (s === "g" || s === "ra") document.documentElement.dataset.side = s; } catch (e) {}
@@ -135,6 +144,17 @@
   .unit .dash { fill: none; stroke: var(--hot); stroke-width: 1.5; stroke-dasharray: 24 10 4 10; opacity: 0.8; }
   .unit .core { fill: url(#coreGrad); animation: beat 2.4s ease-in-out infinite; transform-origin: 200px 200px; }
   .unit .lens { fill: #fff; }
+  .unit .trigger { fill: transparent; pointer-events: all; cursor: pointer; }
+  .hart.spent .unit .trigger { pointer-events: none; cursor: default; }
+  .hart.frozen .unit, .hart.frozen .unit * { animation-play-state: paused !important; transition: none !important; }
+  .hart .unit { transition: filter 0.4s, opacity 0.5s; }
+  .hart canvas.voxels { position: absolute; pointer-events: none; z-index: 3; }
+  .hart canvas.voxels.gl {
+    opacity: 0; transition: opacity 0.3s;
+    -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
+    mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
+  }
+  .hart canvas.voxels.tiles { z-index: 4; }
   .unit .hot-stroke, .unit .coil, .unit .ticks, .unit .inner, .unit .tri, .unit .dash, .unit .coil-glow { transition: stroke 0.6s; }
 
   /* the unit charges up while you type, and spins up when you jack in */
@@ -470,6 +490,7 @@
       <circle class="dash spin-fast" cx="200" cy="200" r="72" />
       <circle class="core" cx="200" cy="200" r="62" />
       <circle class="lens" cx="200" cy="200" r="15" />
+      <circle class="trigger" id="hartTrigger" cx="200" cy="200" r="34" />
     </svg>
   </div>
 
@@ -590,6 +611,29 @@
   }
   document.querySelector("#stateLogin form").addEventListener("submit", () => root.classList.add("charging"));
 
+  // ---- the digital body (digital-body.js): tap the core once per visit ----
+  (function () {
+    const hart = document.querySelector(".hart");
+    const trigger = document.getElementById("hartTrigger");
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { hart.classList.add("spent"); return; }
+    // load three.js and sculpt the heads while the visitor is still reading
+    const ready = new Promise((r) => (window.requestIdleCallback || setTimeout)(r, { timeout: 2500 }))
+      .then(() => import("./digital-body.js"))
+      .then((mod) => { mod.prepare(); return mod; });
+    trigger.addEventListener("click", async function play() {
+      trigger.removeEventListener("click", play);
+      hart.classList.add("spent");
+      try {
+        await (await ready).play(hart, root.dataset.side === "g" ? "g" : "ra");
+      } catch (e) {
+        hart.classList.remove("frozen");
+        hart.querySelectorAll("canvas.voxels").forEach((c) => c.remove());
+        hart.querySelector(".unit").style.opacity = "";
+        console.error(e);
+      }
+    });
+  })();
+
   // ---- boot console ----
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const lines = [
@@ -631,7 +675,7 @@
     el.textContent = "Session terminated";
     el.hidden = false;
   }
-  if (params.toString()) history.replaceState(null, "", location.pathname);
+  if (err || params.has("signed_out")) history.replaceState(null, "", location.pathname);
 
   // ---- already signed in? swap the form for "resume" ----
   fetch("https://vpn.vikalpthukral.com/_auth/status", { credentials: "include" })
