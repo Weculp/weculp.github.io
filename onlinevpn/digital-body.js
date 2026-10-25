@@ -77,35 +77,36 @@ function raHood(x, y, z) {
   return smax(d, -(y + 1.12), 0.06);                                          // open at the bottom, no body
 }
 
-// G.One: a sculpted human face (eyeballs are separate meshes) with swept-back hair
+// G.One's human half is Vikalp, sculpted to the landmarks measured on his photo
+// (g-face.webp): eyes at x = ±0.23, y = 0; 389 photo px per unit.
 function gFace(x, y, z) {
   const ax = Math.abs(x);
-  let d = ellipsoid(x, y, z, 0, 0.25, -0.05, 0.66, 0.82, 0.8);                // cranium
-  d = smin(d, ellipsoid(x, y, z, 0, -0.25, 0.2, 0.5, 0.62, 0.5), 0.25);       // face
-  d = smin(d, ellipsoid(ax, y, z, 0.38, -0.08, 0.42, 0.16, 0.1, 0.17), 0.12); // cheekbones
-  d = smin(d, ellipsoid(ax, y, z, 0.3, -0.62, 0.15, 0.2, 0.24, 0.34), 0.15);  // angular jaw
-  d = smin(d, ellipsoid(x, y, z, 0, -0.86, 0.42, 0.17, 0.11, 0.15), 0.1);     // chin
-  d = smin(d, ellipsoid(ax, y, z, 0.22, 0.17, 0.6, 0.22, 0.06, 0.1), 0.08);   // heavy brow
-  d = smax(d, -ellipsoid(ax, y, z, 0.23, 0.02, 0.66, 0.15, 0.085, 0.16), 0.05); // eye sockets
-  d = smin(d, ellipsoid(ax, y, z, 0.23, 0.055, 0.6, 0.13, 0.04, 0.07), 0.03); // hooded upper lids
-  d = smin(d, ellipsoid(ax, y, z, 0.23, -0.06, 0.6, 0.12, 0.025, 0.06), 0.03); // lower lids
-  d = smin(d, ellipsoid(x, y, z, 0, -0.1, 0.7, 0.05, 0.2, 0.08), 0.06);       // nose bridge
-  d = smin(d, ellipsoid(x, y, z, 0, -0.3, 0.78, 0.07, 0.06, 0.07), 0.05);     // nose tip
-  d = smin(d, ellipsoid(ax, y, z, 0.065, -0.32, 0.7, 0.045, 0.04, 0.05), 0.03); // nose wings
-  d = smax(d, -ellipsoid(ax, y, z, 0.04, -0.355, 0.72, 0.02, 0.012, 0.03), 0.01); // nostrils
-  d = smin(d, ellipsoid(x, y, z, 0, -0.5, 0.69, 0.17, 0.035, 0.06), 0.03);    // upper lip
-  d = smin(d, ellipsoid(x, y, z, 0, -0.575, 0.68, 0.15, 0.04, 0.06), 0.03);   // lower lip
-  d = smax(d, -ellipsoid(x, y, z, 0, -0.535, 0.74, 0.17, 0.008, 0.08), 0.008); // mouth line
-  d = smax(d, -ellipsoid(x, y, z, 0, -0.43, 0.73, 0.02, 0.05, 0.02), 0.01);   // philtrum
-  d = smax(d, -ellipsoid(ax, y, z, 0.17, -0.54, 0.66, 0.025, 0.025, 0.04), 0.02); // mouth corners
-  d = smin(d, ellipsoid(ax, y, z, 0.66, -0.05, -0.02, 0.06, 0.16, 0.1), 0.05); // ears
-  return smax(d, -(y + 0.95), 0.05);                                           // face only
+  let d = ellipsoid(x, y, z, 0, 0.2, -0.1, 0.5, 0.74, 0.72);                   // cranium
+  d = smin(d, ellipsoid(x, y, z, 0, -0.25, 0.1, 0.46, 0.62, 0.55), 0.22);      // broad face
+  d = smin(d, ellipsoid(ax, y, z, 0.27, -0.27, 0.3, 0.2, 0.24, 0.26), 0.15);   // full cheeks
+  d = smin(d, ellipsoid(ax, y, z, 0.22, -0.62, 0.15, 0.2, 0.22, 0.32), 0.15);  // jaw
+  d = smin(d, ellipsoid(x, y, z, 0, -0.76, 0.34, 0.2, 0.12, 0.18), 0.12);      // bearded chin
+  d = smin(d, ellipsoid(ax, y, z, 0.21, 0.14, 0.5, 0.22, 0.05, 0.09), 0.08);   // brow
+  d = smax(d, -ellipsoid(ax, y, z, 0.23, 0, 0.58, 0.13, 0.07, 0.1), 0.05);     // shallow sockets
+  d = smin(d, ellipsoid(ax, y, z, 0.23, 0, 0.5, 0.1, 0.06, 0.07), 0.03);       // eyeballs under the lids
+  d = smin(d, ellipsoid(x, y, z, 0, -0.08, 0.6, 0.055, 0.19, 0.08), 0.06);     // nose bridge
+  d = smin(d, ellipsoid(x, y, z, 0, -0.24, 0.68, 0.085, 0.07, 0.075), 0.05);   // broad tip
+  d = smin(d, ellipsoid(ax, y, z, 0.085, -0.26, 0.6, 0.055, 0.05, 0.05), 0.03); // wings
+  d = smin(d, ellipsoid(x, y, z, 0, -0.455, 0.6, 0.2, 0.04, 0.06), 0.03);      // upper lip
+  d = smin(d, ellipsoid(x, y, z, 0, -0.535, 0.59, 0.18, 0.05, 0.06), 0.03);    // fuller lower lip
+  d = smax(d, -ellipsoid(x, y, z, 0, -0.49, 0.65, 0.2, 0.008, 0.08), 0.008);   // mouth line
+  d = smin(d, ellipsoid(ax, y, z, 0.47, -0.08, -0.08, 0.06, 0.15, 0.1), 0.05); // ears
+  return smax(d, -(y + 0.92), 0.05);                                            // face only
 }
+// big, loose curls: a lumpy volume over the crown and sides, clear of the face
 function gHair(x, y, z) {
-  let d = ellipsoid(x, y, z, 0, 0.3, -0.08, 0.72, 0.9, 0.87);                 // cap over the cranium
-  d = smin(d, ellipsoid(x, y, z, 0.04, 0.84, 0.3, 0.44, 0.2, 0.32), 0.15);    // front swept up and back
-  const front = clamp01((z + 0.3) / 0.7);
-  const hairline = lerp(-0.15, 0.56, front) - 0.1 * clamp01((Math.abs(x) - 0.35) / 0.3); // lower at the temples
+  const ax = Math.abs(x);
+  let d = ellipsoid(x, y, z, 0, 0.36, -0.12, 0.6, 0.6, 0.74);                  // crown
+  d = smin(d, ellipsoid(ax, y, z, 0.42, 0.18, -0.1, 0.24, 0.36, 0.48), 0.2);   // full over the ears
+  d = smin(d, ellipsoid(x, y, z, 0, 0.62, 0.15, 0.48, 0.28, 0.4), 0.18);       // volume on top
+  d += 0.03 * Math.sin(x * 19 + y * 6) * Math.sin(y * 17 + z * 8) * Math.sin(z * 15 + x * 9); // curls
+  const front = clamp01((z + 0.1) / 0.5);
+  const hairline = lerp(-0.3, 0.56 - 0.2 * clamp01((ax - 0.15) / 0.3) ** 2, front); // lower at the temples
   return Math.max(d, hairline - y);
 }
 const gSkin = (x, y, z) => Math.max(gFace(x, y, z), x);                          // viewer's left: a human face
@@ -151,7 +152,11 @@ const heads = {};
 function buildHead(side) {
   heads[side] ??= (async () => side === "ra"
     ? { plates: await mesh(raSkull), cloth: await mesh(raHood) }
-    : { skin: await mesh(gSkin), hair: await mesh(gHairHalf), cubeHalf: await mesh(gCubeHalf) })();
+    : {
+      skin: await mesh(gSkin), hair: await mesh(gHairHalf), cubeHalf: await mesh(gCubeHalf),
+      photo: await new THREE.TextureLoader().loadAsync(new URL("./g-face.webp", import.meta.url).href)
+        .then((t) => { t.colorSpace = THREE.SRGBColorSpace; return t; }),
+    })();
   return heads[side];
 }
 // Warm both heads up while the visitor is still reading the page.
@@ -214,23 +219,32 @@ function withPrintLine(material, uniforms, cellScale, body) {
   return material;
 }
 
-// fractured plates: dark metal shards with glowing red/blue glass between them
-function platesMaterial(uniforms, glassRatio, cellScale, crackGlow) {
+// Ra.One's face: a skull of small dark metal blocks laid like circuitry, a few
+// lit red from inside, with light burning in the eye sockets and the mouth
+function platesMaterial(uniforms) {
   const m = new THREE.MeshStandardMaterial({ side: THREE.DoubleSide });
-  return withPrintLine(m, uniforms, cellScale, [
+  return withPrintLine(m, uniforms, 9, [
     ["#include <color_fragment>", `#include <color_fragment>
-      float glass = step(${(1 - glassRatio).toFixed(2)}, cellRnd.y);
-      float crack = 1.0 - smoothstep(0.0, 0.045, vor.y - vor.x);
-      float wire = (1.0 - glass) * step(0.72, cellRnd.x) * step(0.93, fract(dot(vObj, vec3(23.0, 17.0, 11.0))));
-      diffuseColor.rgb = mix(vec3(0.03, 0.03, 0.034) * (0.6 + 0.8 * cellRnd.z), uHot * 0.07, glass);`],
+      vec3 bq = vObj * vec3(11.0, 15.0, 11.0);
+      bq.x += floor(bq.y) * 0.5;                                   // staggered rows, like bricks
+      vec3 blockId = floor(bq), bf = fract(bq);
+      vec3 blockRnd = hash33(blockId + 5.0);
+      float gap = min(min(bf.x, 1.0 - bf.x), min(bf.y, 1.0 - bf.y));
+      float seamLine = 1.0 - smoothstep(0.0, 0.07, gap);
+      float lit = step(0.93, blockRnd.y);                          // the odd block lit from inside
+      float ax = abs(vObj.x);
+      float eyes = exp(-pow((ax - 0.27) / 0.16, 2.0) - pow(vObj.y / 0.09, 2.0)) * step(0.3, vObj.z);
+      float mouth = exp(-pow(vObj.x / 0.3, 2.0) - pow((vObj.y + 0.6) / 0.09, 2.0)) * step(0.3, vObj.z);
+      diffuseColor.rgb = vec3(0.05, 0.05, 0.058) * (0.35 + 1.3 * blockRnd.z) * (1.0 - 0.6 * seamLine);`],
     ["#include <roughnessmap_fragment>", `#include <roughnessmap_fragment>
-      roughnessFactor = mix(0.18 + 0.3 * cellRnd.x, 0.06, glass);`],
+      roughnessFactor = 0.22 + 0.35 * blockRnd.x;`],
     ["#include <metalnessmap_fragment>", `#include <metalnessmap_fragment>
-      metalnessFactor = mix(0.95, 0.15, glass);`],
+      metalnessFactor = 0.9;`],
     ["#include <normal_fragment_begin>", `#include <normal_fragment_begin>
-      normal = normalize(normal + (hash33(cellId + 3.0) - 0.5) * 0.45);  // every plate tilted its own way`],
+      normal = normalize(normal + (blockRnd - 0.5) * 0.35);        // every block set at its own angle`],
     ["#include <emissivemap_fragment>", `
-      totalEmissiveRadiance = uHot * uGlow * (crack * ${crackGlow.toFixed(2)} + glass * (0.1 + 0.55 * cellRnd.z) + wire * 1.1) + uHot * seam * 4.0;`],
+      totalEmissiveRadiance = uHot * uGlow * (lit * (0.4 + 1.2 * blockRnd.z) + eyes * 1.4 + mouth * (1.6 + 1.6 * blockRnd.x) + seamLine * mouth * 2.0)
+        + uHot * seam * 4.0;`],
   ]);
 }
 
@@ -248,22 +262,25 @@ function clothMaterial(uniforms, color, sheen, scales) {
   ]);
 }
 
-// skin for G.One's human half: warm, slightly glossy, with dark hair and brows
-function skinMaterial(uniforms) {
+// skin for G.One's human half: Vikalp's photo projected straight on from the front.
+// The head is sculpted to the photo's landmarks, so the projection lines up:
+// eye centre at uv (0.5008, 0.4487), 0.6483 x 0.5118 uv per head unit.
+function skinMaterial(uniforms, photo) {
   const m = new THREE.MeshPhysicalMaterial({
-    color: 0x5a3626, roughness: 0.42, sheen: 0.35, sheenColor: new THREE.Color(0x9fb8d8), sheenRoughness: 0.6,
-    clearcoat: 0.12, clearcoatRoughness: 0.45, side: THREE.DoubleSide,
+    roughness: 0.5, sheen: 0.25, sheenColor: new THREE.Color(0x9fb8d8), sheenRoughness: 0.6,
+    clearcoat: 0.08, clearcoatRoughness: 0.5, side: THREE.DoubleSide,
   });
-  return withPrintLine(m, uniforms, 6.0, [
+  return withPrintLine(m, { ...uniforms, uPhoto: { value: photo } }, 6.0, [
+    ["#include <common>", "#include <common>\nuniform sampler2D uPhoto;"],
     ["#include <color_fragment>", `#include <color_fragment>
-      float brow = smoothstep(0.03, 0.0, abs(vObj.y - (0.175 + 0.04 * abs(vObj.x) - 0.08 * max(0.0, abs(vObj.x) - 0.3)))) * step(0.07, abs(vObj.x)) * step(abs(vObj.x), 0.4) * step(0.5, vObj.z);
-      float dark = brow * 0.9;
-      diffuseColor.rgb = mix(diffuseColor.rgb * (0.9 + 0.2 * cellRnd.z), vec3(0.012, 0.01, 0.01), dark);`],
+      vec2 puv = vec2(0.5008 + vObj.x * 0.6483, 1.0 - (0.4487 - vObj.y * 0.5118));
+      vec3 photoRgb = texture2D(uPhoto, puv).rgb;
+      diffuseColor.rgb = photoRgb * 0.75;`],
     ["#include <roughnessmap_fragment>", `#include <roughnessmap_fragment>
-      roughnessFactor = mix(roughnessFactor, 0.62, dark);`],
+      roughnessFactor = 0.68;`],
     ["#include <normal_fragment_begin>", `#include <normal_fragment_begin>
-      normal = normalize(normal + (hash33(floor(vObj * 140.0)) - 0.5) * 0.04);   // pores`],
-    ["#include <emissivemap_fragment>", "totalEmissiveRadiance = uHot * seam * 4.0;"],
+      normal = normalize(normal + (hash33(floor(vObj * 140.0)) - 0.5) * 0.03);   // pores`],
+    ["#include <emissivemap_fragment>", "totalEmissiveRadiance = photoRgb * 0.32 + uHot * seam * 4.0;"], // the photo carries its own light
   ]);
 }
 
@@ -422,7 +439,7 @@ export async function play(hart, side) {
   rimL.position.set(-3, 1.5, -2.5);
   const rimR = new THREE.DirectionalLight(hot, 3.5);
   rimR.position.set(3, 0.5, -2);
-  const face = new THREE.DirectionalLight(side === "ra" ? 0xdfe6ff : 0xffd9bf, side === "ra" ? 1.1 : 1.6);
+  const face = new THREE.DirectionalLight(side === "ra" ? 0xdfe6ff : 0xffd9bf, side === "ra" ? 1.1 : 0.7);
   face.position.set(side === "ra" ? -1.2 : -3, side === "ra" ? 2.6 : 1.2, side === "ra" ? 3 : 1.6); // G: hard side light, half the face in shadow
   scene.add(key, rimL, rimR, face);
 
@@ -435,11 +452,11 @@ export async function play(hart, side) {
   inner.position.set(0, -0.1, 1.15);
   if (side === "ra") {
     group.add(
-      new THREE.Mesh(head.plates, platesMaterial(uniforms, 0.3, 9, 1.7)),
-      new THREE.Mesh(head.cloth, clothMaterial(uniforms, 0x09090c, 0x2c2c38, false)),
+      new THREE.Mesh(head.plates, platesMaterial(uniforms)),
+      new THREE.Mesh(head.cloth, clothMaterial(uniforms, 0x0b0b13, 0x3c3c5c, false)),
       inner);
   } else {
-    group.add(new THREE.Mesh(head.skin, skinMaterial(uniforms)), new THREE.Mesh(head.hair, hairMaterial(uniforms)), inner);
+    group.add(new THREE.Mesh(head.skin, skinMaterial(uniforms, head.photo)), new THREE.Mesh(head.hair, hairMaterial(uniforms)), inner);
   }
 
   // eyes: a burning slit (Ra) or a level, icy one (G), each lighting its socket
@@ -453,20 +470,32 @@ export async function play(hart, side) {
       glow.scale.set(0.12, 0.022, 0.03); glow.position.set(s * 0.27, -0.01, 0.47); glow.rotation.z = s * 0.45;
       core.scale.set(0.075, 0.006, 0.012); core.position.set(s * 0.27, -0.01, 0.5); core.rotation.z = s * 0.45;
     } else {
-      glow.scale.set(0.042, 0.042, 0.012); glow.position.set(s * 0.23, 0.005, 0.612);  // an icy iris on the eyeball
-      core.scale.set(0.011, 0.011, 0.008); core.position.set(s * 0.235, 0.015, 0.623);
+      glow.scale.set(0.026, 0.026, 0.004); glow.position.set(s * 0.23, 0, 0.574);   // an icy iris over his own
+      core.scale.set(0.004, 0.004, 0.003); core.position.set(s * 0.236, 0.008, 0.578);
     }
     const light = new THREE.PointLight(hot, 0, 0.6, 2);
     light.position.set(s * 0.27, 0, 0.6);
     group.add(glow, core, light);
     eyes.push({ glow, core, light, glowMat, coreMat });
   }
-  // G's human eyeball, behind the lids
-  const sclera = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 16), new THREE.MeshPhysicalMaterial({ color: 0xc9c2bb, roughness: 0.15, clearcoat: 1 }));
-  sclera.position.set(-0.23, 0.01, 0.52);
-  sclera.visible = false;
-  if (side === "g") group.add(sclera);
   scene.add(group);
+
+  // rings of the H.A.R.T.'s colour glowing behind the head
+  const ringsMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { uHot: { value: hot }, uFade: { value: 0 }, uTime: { value: 0 } },
+    vertexShader: "varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `uniform vec3 uHot; uniform float uFade, uTime; varying vec2 vUv;
+      void main() {
+        float r = length(vUv - 0.5) * 2.0;
+        float rings = pow(0.5 + 0.5 * cos(r * 22.0 - uTime * 0.6), 6.0) * smoothstep(1.0, 0.35, r) * smoothstep(0.12, 0.3, r);
+        float glow = exp(-r * r * 5.0);
+        gl_FragColor = vec4(uHot * (rings * 0.35 + glow * 0.5) * uFade, 1.0);
+      }`,
+  });
+  const rings = new THREE.Mesh(new THREE.PlaneGeometry(7, 7), ringsMat);
+  rings.position.set(0, HEAD.y + 0.2, -2.5);
+  scene.add(rings);
 
   // ---- the cubes: one per H.A.R.T. cell
   const cells = [];
@@ -576,15 +605,16 @@ export async function play(hart, side) {
       const eyeY = 0, eyesOn = uniforms.uPrint.value > eyeY + 0.05 && uniforms.uCut.value > eyeY;
       const ignite = clamp01((t - T.eyes) / 250);
       const flicker = ignite < 1 ? (Math.random() < 0.5 ? 1 : 0.2) : 0.85 + 0.15 * Math.sin(t / 55);
-      const power = eyesOn && t > T.eyes ? ignite * flicker * (now < glitchUntil ? 0.3 : 1) * (side === "ra" ? 1 : 0.35) : 0;
+      const power = eyesOn && t > T.eyes ? ignite * flicker * (now < glitchUntil ? 0.3 : 1) * (side === "ra" ? 1 : 1) : 0;
       for (const e of eyes) {
         e.glow.visible = e.core.visible = power > 0.02;
-        e.glowMat.color.copy(hot).multiplyScalar(3.2 * power);
-        e.coreMat.color.setScalar(4.5 * power);
-        e.light.intensity = 1.2 * power;
+        e.glowMat.color.copy(hot).multiplyScalar((side === "ra" ? 3.2 : 1.1) * power);
+        e.coreMat.color.setScalar((side === "ra" ? 4.5 : 1.5) * power);
+        e.light.intensity = (side === "ra" ? 1.2 : 0.08) * power;
       }
-      sclera.visible = uniforms.uPrint.value > 0.12 && uniforms.uCut.value > 0.02;
-      inner.intensity = (side === "ra" ? 3 : 2.5) * clamp01((t - T.assemble - T.flight) / 1200) * (t > T.collapse ? clamp01(cYN) : 1);
+      ringsMat.uniforms.uFade.value = (side === "ra" ? 1 : 0.5) * clamp01((t - T.assemble) / 900) * (1 - clamp01((t - T.collapse) / 700));
+      ringsMat.uniforms.uTime.value = t / 1000;
+      inner.intensity = (side === "ra" ? 1.4 : 2) * clamp01((t - T.assemble - T.flight) / 1200) * (t > T.collapse ? clamp01(cYN) : 1);
 
       const solid = [], flashes = [];
       for (let i = 0; i < N; i++) {
