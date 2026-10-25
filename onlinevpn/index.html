@@ -94,29 +94,78 @@
   @keyframes blink { 50% { opacity: 0.25; } }
   @keyframes run { from { stroke-dashoffset: 2470; } to { stroke-dashoffset: 0; } }
 
-  .core {
-    position: fixed; z-index: 0; pointer-events: none;
-    width: min(92vh, 860px); aspect-ratio: 1;
-    left: 50%; top: 50%; transform: translate(-50%, -50%);
-    opacity: 0.9;
+  /* ---------- H.A.R.T. — the heart unit ---------- */
+  .hart {
+    position: relative; z-index: 2;
+    width: clamp(260px, 28vw, 420px); aspect-ratio: 1;
+    justify-self: center;
+    animation: power-up 1.8s cubic-bezier(.2,.8,.2,1) both;
   }
-  .core svg { width: 100%; height: 100%; overflow: visible; }
-  .core .ring { fill: none; stroke: var(--hot); transition: stroke 0.6s; transform-origin: 300px 300px; }
-  .core .r1 { stroke-width: 1; opacity: 0.18; stroke-dasharray: 2 10; animation: spin 90s linear infinite; }
-  .core .r2 { stroke-width: 2; opacity: 0.28; stroke-dasharray: 140 40 20 40; animation: spin 40s linear infinite reverse; }
-  .core .r3 { stroke-width: 6; opacity: 0.16; stroke-dasharray: 3 9; animation: spin 60s linear infinite; }
-  .core .r4 { stroke-width: 1.5; opacity: 0.4; stroke-dasharray: 260 120; animation: spin 18s linear infinite reverse; }
-  .core .heart {
-    fill: url(#heartGlow); opacity: 0.55;
-    animation: beat 2.4s ease-in-out infinite;
-    transform-origin: 300px 300px;
+  .hart .halo {
+    position: absolute; left: 50%; top: 50%; z-index: -1; pointer-events: none;
+    width: 250%; height: 250%; transform: translate(-50%, -50%); overflow: visible;
   }
+  .halo .ring { fill: none; stroke: var(--hot); transition: stroke 0.6s; transform-origin: 300px 300px; }
+  .halo .r1 { stroke-width: 1; opacity: 0.16; stroke-dasharray: 2 10; animation: spin 90s linear infinite; }
+  .halo .r2 { stroke-width: 1.5; opacity: 0.26; stroke-dasharray: 140 40 20 40; animation: spin 40s linear infinite reverse; }
+  .halo .r3 { stroke-width: 5; opacity: 0.14; stroke-dasharray: 3 9; animation: spin 60s linear infinite; }
+  .halo .bloom { fill: url(#bloom); animation: breathe 2.4s ease-in-out infinite; transform-origin: 300px 300px; }
+
+  .hart .unit {
+    position: relative; width: 100%; height: 100%; overflow: visible;
+    filter: drop-shadow(0 0 14px var(--hot-glow)) drop-shadow(0 0 48px var(--hot-soft));
+    transition: filter 0.4s;
+  }
+  .unit .spin-slow { transform-origin: 200px 200px; animation: spin 48s linear infinite; }
+  .unit .spin-rev { transform-origin: 200px 200px; animation: spin 16s linear infinite reverse; }
+  .unit .spin-fast { transform-origin: 200px 200px; animation: spin 7s linear infinite; }
+  .unit .bezel { fill: url(#bezel); stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+  .unit .lip { fill: #050609; stroke: rgba(255,255,255,0.06); stroke-width: 1; }
+  .unit .bolt { fill: url(#boltGrad); stroke: #08090c; stroke-width: 1; }
+  .unit .ticks { fill: none; stroke: var(--hot); stroke-width: 4; stroke-dasharray: 1.5 6.3; opacity: 0.75; }
+  .unit .coil-glow {
+    fill: none; stroke: var(--hot); stroke-width: 54; opacity: 0.95;
+    animation: breathe 2.4s ease-in-out infinite; transform-origin: 200px 200px;
+  }
+  .unit .coil { fill: url(#coilGrad); stroke: var(--hot); stroke-width: 1.1; stroke-opacity: 0.85; }
+  .unit .winding { stroke: rgba(255,255,255,0.10); stroke-width: 1; }
+  .unit .inner { fill: #040507; stroke: var(--hot); stroke-width: 3; }
+  .unit .tri { fill: none; stroke: var(--hot); stroke-width: 2; opacity: 0.9; stroke-linejoin: miter; }
+  .unit .tri.ghost { opacity: 0.3; stroke-width: 1; }
+  .unit .dash { fill: none; stroke: var(--hot); stroke-width: 1.5; stroke-dasharray: 24 10 4 10; opacity: 0.8; }
+  .unit .core { fill: url(#coreGrad); animation: beat 2.4s ease-in-out infinite; transform-origin: 200px 200px; }
+  .unit .lens { fill: #fff; }
+  .unit .hot-stroke, .unit .coil, .unit .ticks, .unit .inner, .unit .tri, .unit .dash, .unit .coil-glow { transition: stroke 0.6s; }
+
+  /* the unit charges up while you type, and spins up when you jack in */
+  body:has(.field:focus-within) .hart .unit {
+    filter: drop-shadow(0 0 22px var(--hot-glow)) drop-shadow(0 0 80px var(--hot-glow));
+  }
+  body:has(.field:focus-within) .unit .spin-fast,
+  .charging .unit .spin-fast { animation-duration: 1.6s; }
+  .charging .unit .spin-rev { animation-duration: 3s; }
+  .charging .unit .core { animation-duration: 0.6s; }
+
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes beat {
-    0%, 100% { transform: scale(1); opacity: 0.45; }
-    12% { transform: scale(1.06); opacity: 0.7; }
-    24% { transform: scale(1); opacity: 0.5; }
-    36% { transform: scale(1.04); opacity: 0.65; }
+    0%, 100% { transform: scale(1); }
+    12% { transform: scale(1.12); }
+    24% { transform: scale(1); }
+    36% { transform: scale(1.07); }
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.7; }
+    12% { opacity: 1; }
+    24% { opacity: 0.75; }
+    36% { opacity: 0.95; }
+  }
+  @keyframes power-up {
+    0% { opacity: 0; transform: scale(0.86) rotate(-25deg); filter: brightness(3); }
+    35% { opacity: 1; }
+    48% { opacity: 0.35; }
+    58% { opacity: 1; }
+    66% { opacity: 0.6; }
+    100% { opacity: 1; transform: none; filter: none; }
   }
 
   .scanlines {
@@ -160,14 +209,19 @@
     position: relative; z-index: 5;
     min-height: calc(100svh - 80px);
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 430px);
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 400px);
     align-items: center;
-    gap: clamp(32px, 6vw, 110px);
+    gap: clamp(24px, 4vw, 72px);
     padding: clamp(16px, 4vh, 48px) var(--gutter) clamp(40px, 8vh, 80px);
-    max-width: 1320px; margin: 0 auto;
+    max-width: 1480px; margin: 0 auto;
+    overflow-x: clip; /* the H.A.R.T. halo is wider than a phone */
   }
-  @media (max-width: 900px) {
-    main { grid-template-columns: 1fr; min-height: 0; }
+  @media (max-width: 1100px) {
+    main { grid-template-columns: minmax(0, 1fr); justify-items: center; min-height: 0; gap: 36px; }
+    main > section { text-align: center; }
+    .kicker { justify-content: center; }
+    .hart { order: -1; width: min(64vw, 320px); margin-top: 24px; }
+    .panel { width: 100%; max-width: 430px; }
   }
 
   .kicker {
@@ -181,7 +235,7 @@
 
   h1 {
     font-weight: 800; text-transform: uppercase;
-    font-size: clamp(3.4rem, 10vw, 8.4rem);
+    font-size: clamp(3.4rem, 6.6vw, 7rem);
     line-height: 0.86; letter-spacing: -0.015em;
     margin-bottom: 1.8rem;
   }
@@ -317,10 +371,6 @@
   .notice.error { border-left-color: #ff2635; color: #ff6b75; background: rgba(255, 38, 53, 0.08); animation: shake 0.4s; }
   @keyframes shake { 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
 
-  @media (max-width: 900px) {
-    .core { width: 150vw; top: 34%; opacity: 0.55; }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
     .circuits .pulse { display: none; }
@@ -335,25 +385,8 @@
   <g id="traces"></g>
 </svg>
 
-<div class="core" aria-hidden="true">
-  <svg viewBox="0 0 600 600">
-    <defs>
-      <radialGradient id="heartGlow">
-        <stop offset="0%" stop-color="#fff" stop-opacity="0.9" />
-        <stop offset="18%" stop-color="var(--hot)" stop-opacity="0.8" />
-        <stop offset="55%" stop-color="var(--hot)" stop-opacity="0.12" />
-        <stop offset="100%" stop-color="var(--hot)" stop-opacity="0" />
-      </radialGradient>
-    </defs>
-    <circle class="heart" cx="300" cy="300" r="120" />
-    <circle class="ring r1" cx="300" cy="300" r="290" />
-    <circle class="ring r2" cx="300" cy="300" r="240" />
-    <circle class="ring r3" cx="300" cy="300" r="200" />
-    <circle class="ring r4" cx="300" cy="300" r="165" />
-  </svg>
-</div>
-
 <div class="vignette"></div>
+<div class="scanlines"></div>
 
 <header class="topbar">
   <a class="back" href="/"><span class="chev">◂</span> vikalpthukral.com</a>
@@ -375,6 +408,70 @@
       <span class="line hollow" data-text="Game.">Game.</span>
     </h1>
   </section>
+
+  <div class="hart" aria-hidden="true">
+    <svg class="halo" viewBox="0 0 600 600">
+      <defs>
+        <radialGradient id="bloom">
+          <stop offset="0%" style="stop-color: var(--hot); stop-opacity: 0.35" />
+          <stop offset="45%" style="stop-color: var(--hot); stop-opacity: 0.08" />
+          <stop offset="100%" style="stop-color: var(--hot); stop-opacity: 0" />
+        </radialGradient>
+      </defs>
+      <circle class="bloom" cx="300" cy="300" r="300" />
+      <circle class="ring r1" cx="300" cy="300" r="292" />
+      <circle class="ring r2" cx="300" cy="300" r="236" />
+      <circle class="ring r3" cx="300" cy="300" r="186" />
+    </svg>
+
+    <svg class="unit" viewBox="0 0 400 400">
+      <defs>
+        <linearGradient id="bezel" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#4a505c" />
+          <stop offset="35%" stop-color="#14161b" />
+          <stop offset="65%" stop-color="#0a0b0e" />
+          <stop offset="100%" stop-color="#2c3039" />
+        </linearGradient>
+        <radialGradient id="boltGrad" cx="35%" cy="35%">
+          <stop offset="0%" stop-color="#6b7280" />
+          <stop offset="100%" stop-color="#1a1d23" />
+        </radialGradient>
+        <linearGradient id="coilGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2f343e" />
+          <stop offset="100%" stop-color="#0c0e12" />
+        </linearGradient>
+        <radialGradient id="coreGrad">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="28%" stop-color="#ffffff" />
+          <stop offset="48%" style="stop-color: var(--hot); stop-opacity: 1" />
+          <stop offset="100%" style="stop-color: var(--hot); stop-opacity: 0" />
+        </radialGradient>
+        <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="7" />
+        </filter>
+      </defs>
+
+      <!-- housing -->
+      <circle class="bezel" cx="200" cy="200" r="197" />
+      <g id="bolts"></g>
+      <circle class="lip" cx="200" cy="200" r="168" />
+      <circle class="ticks spin-slow" cx="200" cy="200" r="160" />
+
+      <!-- light leaking between the coils -->
+      <circle class="coil-glow" cx="200" cy="200" r="128" filter="url(#soft)" />
+      <g id="coils"></g>
+
+      <!-- inner chamber -->
+      <circle class="inner" cx="200" cy="200" r="96" />
+      <g class="spin-rev">
+        <polygon class="tri" points="200,116 272.7,242 127.3,242" />
+        <polygon class="tri ghost" points="200,284 272.7,158 127.3,158" />
+      </g>
+      <circle class="dash spin-fast" cx="200" cy="200" r="72" />
+      <circle class="core" cx="200" cy="200" r="62" />
+      <circle class="lens" cx="200" cy="200" r="15" />
+    </svg>
+  </div>
 
   <aside class="panel">
     <div class="panel-inner">
@@ -457,6 +554,41 @@
     node.setAttribute("class", "node");
     g.appendChild(node);
   });
+
+  // ---- H.A.R.T.: coil segments and housing bolts ----
+  const polar = (r, deg) => {
+    const a = (deg - 90) * Math.PI / 180;
+    return [(200 + r * Math.cos(a)).toFixed(2), (200 + r * Math.sin(a)).toFixed(2)];
+  };
+  const coils = document.getElementById("coils");
+  const SEGMENTS = 10, GAP = 7, R_IN = 104, R_OUT = 152;
+  for (let i = 0; i < SEGMENTS; i++) {
+    const a0 = i * (360 / SEGMENTS) + GAP / 2, a1 = (i + 1) * (360 / SEGMENTS) - GAP / 2;
+    const [x0, y0] = polar(R_OUT, a0), [x1, y1] = polar(R_OUT, a1);
+    const [x2, y2] = polar(R_IN, a1), [x3, y3] = polar(R_IN, a0);
+    const seg = document.createElementNS(ns, "path");
+    seg.setAttribute("class", "coil");
+    seg.setAttribute("d", `M${x0} ${y0} A${R_OUT} ${R_OUT} 0 0 1 ${x1} ${y1} L${x2} ${y2} A${R_IN} ${R_IN} 0 0 0 ${x3} ${y3} Z`);
+    coils.appendChild(seg);
+    // copper-winding grooves across each segment
+    for (let k = 1; k < 6; k++) {
+      const a = a0 + (a1 - a0) * k / 6;
+      const [wx0, wy0] = polar(R_IN + 6, a), [wx1, wy1] = polar(R_OUT - 6, a);
+      const w = document.createElementNS(ns, "line");
+      w.setAttribute("class", "winding");
+      w.setAttribute("x1", wx0); w.setAttribute("y1", wy0); w.setAttribute("x2", wx1); w.setAttribute("y2", wy1);
+      coils.appendChild(w);
+    }
+  }
+  const bolts = document.getElementById("bolts");
+  for (let i = 0; i < 12; i++) {
+    const [bx, by] = polar(183, i * 30 + 15);
+    const b = document.createElementNS(ns, "circle");
+    b.setAttribute("class", "bolt");
+    b.setAttribute("cx", bx); b.setAttribute("cy", by); b.setAttribute("r", 5.5);
+    bolts.appendChild(b);
+  }
+  document.querySelector("#stateLogin form").addEventListener("submit", () => root.classList.add("charging"));
 
   // ---- boot console ----
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
